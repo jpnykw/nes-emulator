@@ -1,4 +1,5 @@
- pub struct Cpu {
+#[derive(Debug, Copy, Clone)]
+pub struct Cpu {
   // accumulator
   pub a: i8,
   // index
@@ -29,7 +30,7 @@ impl Cpu {
       y: 0,
       pc: 0,
       sp: 0,
-      p: 0
+      p: 0x20
     }
   }
 }

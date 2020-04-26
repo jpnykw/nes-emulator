@@ -24,7 +24,7 @@ pub fn header_process(path: String) -> Result<(), String> {
 
   match ines {
     Ines::Data(file, buffer) => {
-      // Constant $4E $45 $53 $1A ("NES" followed by MS-DOS end-of-file)
+      // Constant $4E $45 $53 $1A
       if buffer[0] != 0x4e { return Err("expect 0x4e".to_string()); }
       if buffer[1] != 0x45 { return Err("expect 0x45".to_string()); }
       if buffer[2] != 0x53 { return Err("expect 0x53".to_string()); }
