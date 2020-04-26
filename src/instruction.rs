@@ -1,3 +1,5 @@
+use super::cpu::*;
+
 pub enum Opcode {
   // transfer
   LDA,
@@ -62,4 +64,16 @@ pub enum Opcode {
   // other
   BRK,
   NOP
+}
+
+impl Cpu {
+  pub fn exec(inst: Opcode) {
+    match inst {
+      Opcode::ADC => {
+        println!("ADC");
+      },
+
+      _ => panic!("Unknown opcode")
+    }
+  }
 }
