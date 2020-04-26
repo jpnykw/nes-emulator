@@ -1,30 +1,32 @@
- struct Cpu {
+ pub struct Cpu {
   // accumulator
-  a: i8,
+  pub a: i8,
   // index
-  x: i8, y: i8,
+  pub x: i8,
+  pub y: i8,
   // program counter
-  pc: i16,
+  pub pc: i16,
   // stack pointer
-  sp: i8,
+  pub sp: i8,
   /*
    * processer status
-   * 7: Negative,
-   * 6: oVerflow,
-   * 4: Break,
-   * 3: Decimal,
-   * 2: Interrupt,
-   * 1: Zero,
-   * 0: Carry
+   * 7: negative,
+   * 6: overflow,
+   * 4: break,
+   * 3: decimal,
+   * 2: interrupt,
+   * 1: zero,
+   * 0: carry
    */
-  p: i8
+  pub p: i8
 }
 
 impl Cpu {
-  fn new() -> Self {
+  pub fn new() -> Self {
     Self {
       a: 0,
-      x: 0, y: 0,
+      x: 0,
+      y: 0,
       pc: 0,
       sp: 0,
       p: 0
