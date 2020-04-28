@@ -19,7 +19,7 @@ pub struct Cpu {
    * 1: zero,
    * 0: carry
    */
-  pub p: i8
+  pub p: u8
 }
 
 impl Cpu {
@@ -30,7 +30,7 @@ impl Cpu {
       y: 0,
       pc: 0,
       sp: 0,
-      p: 0x20
+      p: 0
     }
   }
 }

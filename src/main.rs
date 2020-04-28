@@ -10,6 +10,6 @@ fn main() {
   let mut cpu = cpu::Cpu::new();
   let machine = machine::Machine::new();
 
-  cpu.interrupt(instruction::Interrupt::RESET);
+  // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(instruction::Interrupt::RESET);
 }
