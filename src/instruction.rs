@@ -257,6 +257,15 @@ impl Cpu {
       0x68 => Instruction(Opcode::PLA, Addressing::Implied),
       0x28 => Instruction(Opcode::PLP, Addressing::Implied),
 
+      /// ジャンプ命令
+      // JMP
+      0x4c => Instruction(Opcode::JMP, Addressing::Absolute),
+      0x6c => Instruction(Opcode::JMP, Addressing::Indirect),
+      // JSR, RTS, RTI
+      0x20 => Instruction(Opcode::JSR, Addressing::Absolute),
+      0x60 => Instruction(Opcode::RTS, Addressing::Implied),
+      0x40 => Instruction(Opcode::RTI, Addressing::Implied),
+
       _ => panic!("Invalid machine code"),
     }
   }
