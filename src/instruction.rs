@@ -287,6 +287,11 @@ impl Cpu {
       0xf8 => Instruction(Opcode::SED, Addressing::Implied),
       0x78 => Instruction(Opcode::SEI, Addressing::Implied),
 
+      /// その他
+      // BRK, NOP
+      0x00 => Instruction(Opcode::BRK, Addressing::Implied),
+      0xea => Instruction(Opcode::NOP, Addressing::Implied),
+
       _ => panic!("Invalid machine code"),
     }
   }
