@@ -13,4 +13,5 @@ fn main() {
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(instruction::Interrupt::RESET);
+  // println!("{:?}", cpu.convert(0xa9));
 }

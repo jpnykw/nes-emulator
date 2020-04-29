@@ -3,6 +3,7 @@ use super::cpu::*;
 const ON: bool = true;
 const OFF: bool = false;
 
+#[derive(Debug)]
 pub enum Opcode {
   // transfer
   LDA,
@@ -66,9 +67,17 @@ pub enum Opcode {
   SEI,
   // other
   BRK,
-  NOP
+  NOP,
+  // unofficial (RMW instruction)
+  DCP,
+  ISC,
+  RLA,
+  RRA,
+  SLO,
+  SRE
 }
 
+#[derive(Debug)]
 pub enum Addressing {
   Implied,
   Accumulator,
@@ -85,6 +94,7 @@ pub enum Addressing {
   IndirectY
 }
 
+#[derive(Debug)]
 pub enum Interrupt {
   RESET,
   NMI,
@@ -92,11 +102,12 @@ pub enum Interrupt {
   BRK
 }
 
+#[derive(Debug)]
 pub struct Instruction(Opcode, Addressing);
 
 impl Cpu {
   // TODO: ROMのマシンコードを命令に変換する
-  pub fn convert(code: u8) -> Instruction {
+  pub fn convert(self, code: u8) -> Instruction {
     match code {
       /// 転送命令
       // LDA
@@ -204,7 +215,7 @@ impl Cpu {
       0x5d => Instruction(Opcode::EOR, Addressing::AbsoluteX),
       0x59 => Instruction(Opcode::EOR, Addressing::AbsoluteY),
       0x41 => Instruction(Opcode::EOR, Addressing::IndirectX),
-      0x41 => Instruction(Opcode::EOR, Addressing::IndirectY),
+      0x51 => Instruction(Opcode::EOR, Addressing::IndirectY),
       // INC
       0xe6 => Instruction(Opcode::INC, Addressing::Zeropage),
       0xf6 => Instruction(Opcode::INC, Addressing::ZeropageX),
@@ -292,7 +303,59 @@ impl Cpu {
       0x00 => Instruction(Opcode::BRK, Addressing::Implied),
       0xea => Instruction(Opcode::NOP, Addressing::Implied),
 
-      _ => panic!("Invalid machine code"),
+      /// unofficial_opcodesが必要らしい
+
+      /// RMW 命令
+      // DCP
+      0xc3 => Instruction(Opcode::DCP, Addressing::IndirectX),
+      0xc7 => Instruction(Opcode::DCP, Addressing::Zeropage),
+      0xcf => Instruction(Opcode::DCP, Addressing::Absolute),
+      0xd3 => Instruction(Opcode::DCP, Addressing::IndirectY),
+      0xd7 => Instruction(Opcode::DCP, Addressing::ZeropageX),
+      0xdb => Instruction(Opcode::DCP, Addressing::AbsoluteY),
+      0xdf => Instruction(Opcode::DCP, Addressing::AbsoluteX),
+      // ISC
+      0xe3 => Instruction(Opcode::ISC, Addressing::IndirectX),
+      0xe7 => Instruction(Opcode::ISC, Addressing::Zeropage),
+      0xef => Instruction(Opcode::ISC, Addressing::Absolute),
+      0xf3 => Instruction(Opcode::ISC, Addressing::IndirectY),
+      0xf7 => Instruction(Opcode::ISC, Addressing::ZeropageX),
+      0xfb => Instruction(Opcode::ISC, Addressing::AbsoluteX),
+      0xff => Instruction(Opcode::ISC, Addressing::AbsoluteX),
+      // RLA
+      0x23 => Instruction(Opcode::RLA, Addressing::IndirectX),
+      0x27 => Instruction(Opcode::RLA, Addressing::Zeropage),
+      0x2f => Instruction(Opcode::RLA, Addressing::Absolute),
+      0x33 => Instruction(Opcode::RLA, Addressing::IndirectY),
+      0x37 => Instruction(Opcode::RLA, Addressing::ZeropageX),
+      0x3b => Instruction(Opcode::RLA, Addressing::AbsoluteY),
+      0x3f => Instruction(Opcode::RLA, Addressing::AbsoluteX),
+      // RRA
+      0x63 => Instruction(Opcode::RRA, Addressing::IndirectX),
+      0x67 => Instruction(Opcode::RRA, Addressing::Zeropage),
+      0x6f => Instruction(Opcode::RRA, Addressing::Absolute),
+      0x73 => Instruction(Opcode::RRA, Addressing::IndirectY),
+      0x77 => Instruction(Opcode::RRA, Addressing::ZeropageX),
+      0x7b => Instruction(Opcode::RRA, Addressing::AbsoluteY),
+      0x7f => Instruction(Opcode::RRA, Addressing::AbsoluteX),
+      // SLO
+      0x03 => Instruction(Opcode::SLO, Addressing::IndirectX),
+      0x07 => Instruction(Opcode::SLO, Addressing::Zeropage),
+      0x0f => Instruction(Opcode::SLO, Addressing::Absolute),
+      0x13 => Instruction(Opcode::SLO, Addressing::IndirectY),
+      0x17 => Instruction(Opcode::SLO, Addressing::ZeropageX),
+      0x1b => Instruction(Opcode::SLO, Addressing::AbsoluteY),
+      0x1f => Instruction(Opcode::SLO, Addressing::AbsoluteX),
+      // SRE
+      0x43 => Instruction(Opcode::SRE, Addressing::IndirectX),
+      0x47 => Instruction(Opcode::SRE, Addressing::Zeropage),
+      0x4f => Instruction(Opcode::SRE, Addressing::Absolute),
+      0x53 => Instruction(Opcode::SRE, Addressing::IndirectY),
+      0x57 => Instruction(Opcode::SRE, Addressing::ZeropageX),
+      0x5b => Instruction(Opcode::SRE, Addressing::AbsoluteY),
+      0x5f => Instruction(Opcode::SRE, Addressing::AbsoluteX),
+
+      _ => panic!(format!("Invalid machine code 0x{:>02x}", code)),
     }
   }
 

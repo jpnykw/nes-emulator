@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Read;
+use super::cpu;
 
 pub enum Ines {
   Data(
@@ -40,20 +41,43 @@ pub fn header_process(path: String) -> Result<(), String> {
       let chr_addr = header + prg_addr + prg_bytes;
       println!("PRG-ROM bytes: \x1b[38;5;51m0x{:>08x} ~ 0x{:>08x}\x1b[m", prg_addr, prg_addr + prg_bytes);
       println!("CHR-ROM bytes: \x1b[38;5;51m0x{:>08x} ~ 0x{:>08x}\x1b[m", chr_addr, chr_addr + chr_bytes);
+
+      // TODO: mainに移動させる
       println!("Data of PRG-ROM");
       for i in prg_addr .. prg_addr + 30 {
         let mut line = format!("{:<03x}", i);
-        for j in 0 .. 7 {
-          line = format!("{} \x1b[38;5;69m{:>08x}\x1b[m", line, buffer[i+j]);
+        for j in 0 .. 9 {
+          line = format!(
+            "{} \x1b[38;5;69m{:>08x}\x1b[m", line,
+            buffer[i + j]
+          );
         }
         println!("{}", line);
       }
       println!("...");
+
+      {
+        let mut cpu = cpu::Cpu::new();
+        println!("Converted data of PRG-ROM");
+        for i in prg_addr .. prg_addr + 30 {
+          let mut line = format!("{:<03x}", i);
+          for j in 0 .. 3 {
+            line = format!(
+              "{} \x1b[38;5;69m{:?}\x1b[m", line,
+              cpu.convert(buffer[i + j])
+            );
+          }
+          println!("{}", line);
+        }
+        println!("...");
+      }
     },
 
     _ => panic!("Invalid file type")
   }
 
   println!("OK");
+
+  // TODO: バッファを返却する
   Ok(())
 }
