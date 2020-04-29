@@ -250,6 +250,13 @@ impl Cpu {
       0xe1 => Instruction(Opcode::SBC, Addressing::IndirectX),
       0xf1 => Instruction(Opcode::SBC, Addressing::IndirectY),
 
+      /// スタック命令
+      // PHA, PHP, PLA, PLP
+      0x48 => Instruction(Opcode::PHA, Addressing::Implied),
+      0x08 => Instruction(Opcode::PHP, Addressing::Implied),
+      0x68 => Instruction(Opcode::PLA, Addressing::Implied),
+      0x28 => Instruction(Opcode::PLP, Addressing::Implied),
+
       _ => panic!("Invalid machine code"),
     }
   }
