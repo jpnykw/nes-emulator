@@ -68,6 +68,7 @@ pub enum Opcode {
   // other
   BRK,
   NOP,
+  SKB,
   // unofficial (RMW instruction)
   DCP,
   ISC,
@@ -306,12 +307,24 @@ impl Cpu {
       0x78 => Instruction(Opcode::SEI, Addressing::Implied),
 
       /// その他
-      // BRK, NOP
+      // BRK
       0x00 => Instruction(Opcode::BRK, Addressing::Implied),
+      // NOP
+      0x1a => Instruction(Opcode::NOP, Addressing::Implied),
+      0x3a => Instruction(Opcode::NOP, Addressing::Implied),
+      0x5a => Instruction(Opcode::NOP, Addressing::Implied),
+      0x7a => Instruction(Opcode::NOP, Addressing::Implied),
+      0xda => Instruction(Opcode::NOP, Addressing::Implied),
       0xea => Instruction(Opcode::NOP, Addressing::Implied),
+      0xfa => Instruction(Opcode::NOP, Addressing::Implied),
+      // SKB
+      0x80 => Instruction(Opcode::SKB, Addressing::Immediate),
+      0x82 => Instruction(Opcode::SKB, Addressing::Immediate),
+      0x89 => Instruction(Opcode::SKB, Addressing::Immediate),
+      0xc2 => Instruction(Opcode::SKB, Addressing::Immediate),
+      0xe2 => Instruction(Opcode::SKB, Addressing::Immediate),
 
-      /// unofficial_opcodesが必要らしい
-
+      // unofficial_opcodesが必要らしい
       /// RMW 命令
       // DCP
       0xc3 => Instruction(Opcode::DCP, Addressing::IndirectX),
@@ -380,7 +393,10 @@ impl Cpu {
       0x8f => Instruction(Opcode::SAX, Addressing::Absolute),
       0x97 => Instruction(Opcode::SAX, Addressing::ZeropageY),
 
-      _ => panic!(format!("Invalid machine code 0x{:>02x}", code)),
+      // TODO: たまに未知の値を検出するとパニックするのでNOPで対応
+      // TODO: 実装方法が正しいのかは不明 [要検証]
+      // _ => panic!(format!("Invalid machine code 0x{:>02x}", code)),
+      _ => Instruction(Opcode::NOP, Addressing::Immediate)
     }
   }
 

@@ -71,6 +71,20 @@ pub fn header_process(path: String) -> Result<(), String> {
         }
         println!("...");
       }
+
+      {
+        let mut cpu = cpu::Cpu::new();
+        println!("Converted all data of PRG-ROM");
+        // 変換テスト
+        for i in prg_addr .. prg_addr + prg_bytes {
+          for _ in 0 .. 14 {
+            // print!("{:<07} \x1b[38;5;69m{:<08x}\x1b[m ", i, buffer[i]);
+            cpu.convert(buffer[i]);
+          }
+          // println!();
+        }
+        println!("Done");
+      }
     },
 
     _ => panic!("Invalid file type")
