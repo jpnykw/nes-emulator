@@ -266,6 +266,17 @@ impl Cpu {
       0x60 => Instruction(Opcode::RTS, Addressing::Implied),
       0x40 => Instruction(Opcode::RTI, Addressing::Implied),
 
+      /// 分岐命令
+      // BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS
+      0x90 => Instruction(Opcode::BCC, Addressing::Relative),
+      0xb0 => Instruction(Opcode::BCS, Addressing::Relative),
+      0xf0 => Instruction(Opcode::BEQ, Addressing::Relative),
+      0x30 => Instruction(Opcode::BMI, Addressing::Relative),
+      0xd0 => Instruction(Opcode::BNE, Addressing::Relative),
+      0x10 => Instruction(Opcode::BPL, Addressing::Relative),
+      0x50 => Instruction(Opcode::BVC, Addressing::Relative),
+      0x70 => Instruction(Opcode::BVS, Addressing::Relative),
+
       _ => panic!("Invalid machine code"),
     }
   }
