@@ -277,6 +277,16 @@ impl Cpu {
       0x50 => Instruction(Opcode::BVC, Addressing::Relative),
       0x70 => Instruction(Opcode::BVS, Addressing::Relative),
 
+      /// フラグ変更命令
+      // CLC, CLD, CLI, CLV, SEC, SED, SEI
+      0x18 => Instruction(Opcode::CLC, Addressing::Implied),
+      0xd8 => Instruction(Opcode::CLD, Addressing::Implied),
+      0x58 => Instruction(Opcode::CLI, Addressing::Implied),
+      0xb8 => Instruction(Opcode::CLV, Addressing::Implied),
+      0x38 => Instruction(Opcode::SEC, Addressing::Implied),
+      0xf8 => Instruction(Opcode::SED, Addressing::Implied),
+      0x78 => Instruction(Opcode::SEI, Addressing::Implied),
+
       _ => panic!("Invalid machine code"),
     }
   }
