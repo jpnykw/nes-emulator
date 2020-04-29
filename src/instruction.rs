@@ -74,7 +74,14 @@ pub enum Opcode {
   RLA,
   RRA,
   SLO,
-  SRE
+  SRE,
+  // combined operations
+  ALR,
+  ANC,
+  ARR,
+  AXS,
+  LAX,
+  SAX
 }
 
 #[derive(Debug)]
@@ -354,6 +361,24 @@ impl Cpu {
       0x57 => Instruction(Opcode::SRE, Addressing::ZeropageX),
       0x5b => Instruction(Opcode::SRE, Addressing::AbsoluteY),
       0x5f => Instruction(Opcode::SRE, Addressing::AbsoluteX),
+
+      /// 結合演算子
+      0x4b => Instruction(Opcode::ALR, Addressing::Immediate),
+      0x0b => Instruction(Opcode::ANC, Addressing::Immediate),
+      0x6b => Instruction(Opcode::ARR, Addressing::Immediate),
+      0xcb => Instruction(Opcode::AXS, Addressing::Immediate),
+      // LAX
+      0xa3 => Instruction(Opcode::LAX, Addressing::IndirectX),
+      0xa7 => Instruction(Opcode::LAX, Addressing::Zeropage),
+      0xaf => Instruction(Opcode::LAX, Addressing::Absolute),
+      0xb3 => Instruction(Opcode::LAX, Addressing::IndirectY),
+      0xb7 => Instruction(Opcode::LAX, Addressing::ZeropageY),
+      0xbf => Instruction(Opcode::LAX, Addressing::AbsoluteY),
+      // SAX
+      0x83 => Instruction(Opcode::SAX, Addressing::IndirectX),
+      0x87 => Instruction(Opcode::SAX, Addressing::Zeropage),
+      0x8f => Instruction(Opcode::SAX, Addressing::Absolute),
+      0x97 => Instruction(Opcode::SAX, Addressing::ZeropageY),
 
       _ => panic!(format!("Invalid machine code 0x{:>02x}", code)),
     }
