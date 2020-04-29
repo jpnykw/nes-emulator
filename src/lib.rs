@@ -15,7 +15,7 @@ fn cpu_register() {
 
 #[test]
 fn nes_header() {
-  let path = "./rom/helloworld.nes".to_string();
+  let path = "./roms/helloworld.nes".to_string();
   let result = system::header_process(path);
   assert_eq!(result, Ok(()));
 }
