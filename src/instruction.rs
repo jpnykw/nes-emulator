@@ -70,7 +70,19 @@ pub enum Opcode {
 }
 
 pub enum Addressing {
-
+  Implied,
+  Accumulator,
+  Immediate,
+  Zeropage,
+  ZeropageX,
+  ZeropageY,
+  Relative,
+  Absolute,
+  AbsoluteX,
+  AbsoluteY,
+  Indirect,
+  IndirectX,
+  IndirectY
 }
 
 pub enum Interrupt {
@@ -80,8 +92,62 @@ pub enum Interrupt {
   BRK
 }
 
+pub struct Instruction(Opcode, Addressing);
+
 impl Cpu {
-  // todo: machineを引数で渡せるようにする
+  // TODO: ROMのマシンコードを命令に変換する
+  pub fn convert(code: u8) -> Instruction {
+    match code {
+      /// 転送命令
+      // LDA
+      0xa9 => Instruction(Opcode::LDA, Addressing::Immediate),
+      0xa5 => Instruction(Opcode::LDA, Addressing::Zeropage),
+      0xb5 => Instruction(Opcode::LDA, Addressing::ZeropageX),
+      0xad => Instruction(Opcode::LDA, Addressing::Absolute),
+      0xbd => Instruction(Opcode::LDA, Addressing::AbsoluteX),
+      0xa1 => Instruction(Opcode::LDA, Addressing::AbsoluteY),
+      0xb1 => Instruction(Opcode::LDA, Addressing::IndirectY),
+      // LDX
+      0xa2 => Instruction(Opcode::LDX, Addressing::Immediate),
+      0xa6 => Instruction(Opcode::LDX, Addressing::Zeropage),
+      0xb6 => Instruction(Opcode::LDX, Addressing::ZeropageY),
+      0xae => Instruction(Opcode::LDX, Addressing::Absolute),
+      0xbe => Instruction(Opcode::LDX, Addressing::AbsoluteY),
+      // LDY
+      0xa0 => Instruction(Opcode::LDY, Addressing::Immediate),
+      0xa4 => Instruction(Opcode::LDY, Addressing::Zeropage),
+      0xb4 => Instruction(Opcode::LDY, Addressing::ZeropageX),
+      0xac => Instruction(Opcode::LDY, Addressing::Absolute),
+      0xbc => Instruction(Opcode::LDY, Addressing::AbsoluteX),
+      // STA
+      0x85 => Instruction(Opcode::STA, Addressing::Zeropage),
+      0x95 => Instruction(Opcode::STA, Addressing::ZeropageX),
+      0x8d => Instruction(Opcode::STA, Addressing::Absolute),
+      0x9d => Instruction(Opcode::STA, Addressing::AbsoluteX),
+      0x99 => Instruction(Opcode::STA, Addressing::AbsoluteY),
+      0x81 => Instruction(Opcode::STA, Addressing::IndirectX),
+      0x91 => Instruction(Opcode::STA, Addressing::IndirectY),
+      // STX
+      0x86 => Instruction(Opcode::STX, Addressing::Zeropage),
+      0x96 => Instruction(Opcode::STX, Addressing::ZeropageY),
+      0x8e => Instruction(Opcode::STX, Addressing::Absolute),
+      // STY
+      0x84 => Instruction(Opcode::STY, Addressing::Zeropage),
+      0x94 => Instruction(Opcode::STY, Addressing::ZeropageX),
+      0x8c => Instruction(Opcode::STY, Addressing::Absolute),
+      // TAX, TAY, TSX, TXA, TXS, TYA
+      0xaa => Instruction(Opcode::TAX, Addressing::Implied),
+      0xa8 => Instruction(Opcode::TAY, Addressing::Implied),
+      0xba => Instruction(Opcode::TSX, Addressing::Implied),
+      0x8a => Instruction(Opcode::TXA, Addressing::Implied),
+      0x9a => Instruction(Opcode::TXS, Addressing::Implied),
+      0x98 => Instruction(Opcode::TYA, Addressing::Implied),
+
+      _ => panic!("Invalid machine code"),
+    }
+  }
+
+  // TODO: machineを引数で渡せるようにする
   pub fn interrupt(&mut self, inst: Interrupt) {
     match inst {
       Interrupt::RESET => {

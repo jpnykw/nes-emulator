@@ -4,6 +4,7 @@ mod machine;
 mod cpu;
 
 fn main() {
+  // カセットを読み込む
   let path = "./rom/helloworld.nes".to_string();
   let result = system::header_process(path);
 
