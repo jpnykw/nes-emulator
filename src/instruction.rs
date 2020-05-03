@@ -68,7 +68,6 @@ pub enum Opcode {
   // other
   BRK,
   NOP,
-  SKB,
   // unofficial (RMW instruction)
   DCP,
   ISC,
@@ -76,13 +75,14 @@ pub enum Opcode {
   RRA,
   SLO,
   SRE,
-  // combined operations
   ALR,
   ANC,
   ARR,
   AXS,
   LAX,
-  SAX
+  SAX,
+  SKB,
+  IGN
 }
 
 #[derive(Debug)]
@@ -392,11 +392,52 @@ impl Cpu {
       0x87 => Instruction(Opcode::SAX, Addressing::Zeropage),
       0x8f => Instruction(Opcode::SAX, Addressing::Absolute),
       0x97 => Instruction(Opcode::SAX, Addressing::ZeropageY),
+      // IGN
+      0x0c => Instruction(Opcode::IGN, Addressing::Absolute),
+
+      0x1c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      0x3c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      0x5c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      0x7c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      0xdc => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      0xfc => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+
+      0x04 => Instruction(Opcode::IGN, Addressing::Zeropage),
+      0x44 => Instruction(Opcode::IGN, Addressing::Zeropage),
+      0x64 => Instruction(Opcode::IGN, Addressing::Zeropage),
+
+      0x14 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0x34 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0x54 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0x74 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0xd4 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0xf4 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+
+      // Unknown code となったものをNOPとしておく
+      0x02 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x12 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x22 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x32 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x42 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x52 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x62 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x72 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x92 => Instruction(Opcode::NOP, Addressing::Immediate),
 
       // TODO: たまに未知の値を検出するとパニックするのでNOPで対応
       // TODO: 実装方法が正しいのかは不明 [要検証]
-      // _ => panic!(format!("Invalid machine code 0x{:>02x}", code)),
-      _ => Instruction(Opcode::NOP, Addressing::Immediate)
+      // _ => panic!(format!("Unknown code 0x{:>02x}", code)),
+      _ => {
+        let text = format!("Unknown code 0x{:>02x}", code);
+
+        // 本来はすべてpanicさせたい
+        let mode = false;
+        if mode { panic!(text); }
+
+        // 仮で通す
+        // println!("{}", text);
+        Instruction(Opcode::NOP, Addressing::Immediate)
+      }
     }
   }
 
