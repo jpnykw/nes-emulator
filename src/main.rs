@@ -13,7 +13,7 @@ fn main() {
   let mut ppu = ppu::Ppu::new();
 
   // 電源が入るとRESETの割込処理が走る
-  cpu.interrupt(instruction::Interrupt::RESET);
+  cpu.interrupt(&mut machine, instruction::Interrupt::RESET);
 }
 
 // テストクン

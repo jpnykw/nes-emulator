@@ -442,7 +442,6 @@ impl Cpu {
     }
   }
 
-  // TODO: machineを引数で渡せるようにする
   pub fn interrupt(&mut self, machine: &mut machine::Machine, inst: Interrupt) {
     match inst {
       Interrupt::RESET => {
@@ -454,12 +453,9 @@ impl Cpu {
 
       Interrupt::NMI => {
         self.set_b_flag(OFF);
-        // PCの上位バイト、 下位バイト
-        // ステータスレジスタを順にスタックへ格納
-        self.push_stack(&mut machine, self.pc >> 8);
-        self.push_stack(&mut machine, self.pc & 255);
-        self.push_stack(&mut machine, self.p);
-
+        self.push_stack(machine, (self.pc >> 8) as u8);
+        self.push_stack(machine, (self.pc & 255) as u8);
+        self.push_stack(machine, self.p);
         self.set_i_flag(ON);
       },
 
