@@ -6,14 +6,18 @@ mod cpu;
 
 fn main() {
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::header_process(path);
+  let result = system::load_cassette(path);
 
-  let mut ppu = ppu::Ppu::new();
   let mut cpu = cpu::Cpu::new();
-  let machine = machine::Machine::new();
+  let mut ppu = ppu::Ppu::new();
+  let mut machine = machine::Machine::new();
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(instruction::Interrupt::RESET);
+
+  println!("WRAM[0x01fe] ::= 0x{:<04x}", machine.wram[0x01fe]); // 上位 0x01 は固定
+  cpu.push_stack(&mut machine, 0x7b);
+  println!("WRAM[0x01fe] ::= 0x{:<04x}", machine.wram[0x01fe]);
 }
 
 // テストクン
@@ -24,14 +28,14 @@ fn cpu_register() {
   assert_eq!(module.x, 0);
   assert_eq!(module.y, 0);
   assert_eq!(module.pc, 0);
-  assert_eq!(module.sp, 0);
-  assert_eq!(module.p, 0);
+  assert_eq!(module.sp, 0xfe);
+  assert_eq!(module.p, 0x20);
 }
 
 #[test]
 fn load_cassette() {
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::header_process(path);
+  let result = system::load_cassette(path);
 
   match result {
     Ok(_) => (),
@@ -44,7 +48,7 @@ fn check_rom_data() {
   let prg_data = [0x78, 0xa2, 0xff, 0x9a, 0xa9, 0x00, 0x8d, 0x00, 0x20, 0x8d]; // from 0
   let chr_data = [0x1c, 0x3e, 0x3e, 0x3e, 0x1c, 0x1c, 0x1c, 0x1c, 0x18, 0x3c]; // from 528
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::header_process(path);
+  let result = system::load_cassette(path);
 
   for id in 0 .. 10 {
     match &result {
@@ -56,4 +60,15 @@ fn check_rom_data() {
       _ => {}
     }
   }
+}
+
+#[test]
+fn stack_and_pop() {
+  let addr = 0x1fe;
+  let mut cpu = cpu::Cpu::new();
+  let mut machine = machine::Machine::new();
+
+  assert_eq!(cpu.pop_stack(&mut machine, addr), 0); // sp がインクリメントされる
+  cpu.push_stack(&mut machine, 0x7b);
+  assert_eq!(cpu.pop_stack(&mut machine, addr + 1), 0x7b); // インクリメントされた分ずらす
 }

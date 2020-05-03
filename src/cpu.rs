@@ -1,14 +1,16 @@
+use super::machine;
+
 #[derive(Debug, Copy, Clone)]
 pub struct Cpu {
   // accumulator
-  pub a: i8,
+  pub a: u8,
   // index
-  pub x: i8,
-  pub y: i8,
+  pub x: u8,
+  pub y: u8,
   // program counter
-  pub pc: i16,
+  pub pc: u16,
   // stack pointer
-  pub sp: i8,
+  pub sp: u16,
   /*
    * processer status
    * 7: negative,
@@ -29,9 +31,20 @@ impl Cpu {
       x: 0,
       y: 0,
       pc: 0,
-      sp: 0,
-      p: 0
+      sp: 0xfe,
+      p: 0x20
     }
+  }
+
+  pub fn push_stack(&mut self, machine: &mut machine::Machine, val: u8) {
+    let addr = 0x100 + self.sp as u16;
+    machine.store(addr as usize, val);
+    self.sp -= 1;
+  }
+
+  pub fn pop_stack(&mut self, machine: &mut machine::Machine, addr: usize) -> u8 {
+    self.sp += 1;
+    machine.fetch(addr)
   }
 }
 

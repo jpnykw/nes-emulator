@@ -28,7 +28,7 @@ pub fn read_nes(path: String) -> Ines {
   )
 }
 
-pub fn header_process(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
+pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
   let mut prg_rom = [0; 0x8000];
   let mut chr_rom = [0; 0x2000];
   let ines = read_nes(path);
