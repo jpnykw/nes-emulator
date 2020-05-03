@@ -8,16 +8,12 @@ fn main() {
   let path = "./roms/helloworld.nes".to_string();
   let result = system::load_cassette(path);
 
+  let mut machine = machine::Machine::new();
   let mut cpu = cpu::Cpu::new();
   let mut ppu = ppu::Ppu::new();
-  let mut machine = machine::Machine::new();
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(instruction::Interrupt::RESET);
-
-  println!("WRAM[0x01fe] ::= 0x{:<04x}", machine.wram[0x01fe]); // 上位 0x01 は固定
-  cpu.push_stack(&mut machine, 0x7b);
-  println!("WRAM[0x01fe] ::= 0x{:<04x}", machine.wram[0x01fe]);
 }
 
 // テストクン

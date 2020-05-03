@@ -1,4 +1,5 @@
 use super::cpu::*;
+use super::machine;
 
 const ON: bool = true;
 const OFF: bool = false;
@@ -442,18 +443,23 @@ impl Cpu {
   }
 
   // TODO: machineを引数で渡せるようにする
-  pub fn interrupt(&mut self, inst: Interrupt) {
+  pub fn interrupt(&mut self, machine: &mut machine::Machine, inst: Interrupt) {
     match inst {
       Interrupt::RESET => {
         self.set_i_flag(ON);
         // TODO: PCの下位バイトを$FFFCから
         // 上位バイトを$FFFDからフェッチ
+
       },
 
       Interrupt::NMI => {
         self.set_b_flag(OFF);
-        // TODO: PCの上位バイト、 下位バイト
+        // PCの上位バイト、 下位バイト
         // ステータスレジスタを順にスタックへ格納
+        self.push_stack(&mut machine, self.pc >> 8);
+        self.push_stack(&mut machine, self.pc & 255);
+        self.push_stack(&mut machine, self.p);
+
         self.set_i_flag(ON);
       },
 
