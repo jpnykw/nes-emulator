@@ -28,6 +28,10 @@ pub fn read_nes(path: String) -> Ines {
   )
 }
 
+pub fn debug(val: u8, eol: bool) {
+  print!("{:>04x}{}", val, if eol { "\n" } else { " " });
+}
+
 pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
   let mut prg_rom = [0; 0x8000];
   let mut chr_rom = [0; 0x2000];
@@ -85,8 +89,7 @@ pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
         println!("...");
       }
 
-      if true {
-        print!("\x1b[38;5;192mPRG-ROM 変換テスト: ");
+      if false {
         let mut cpu = cpu::Cpu::new();
         for addr in prg_addr .. prg_addr + prg_bytes {
           cpu.convert(buffer[addr]);
@@ -94,14 +97,25 @@ pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
       }
 
       let mut cpu = cpu::Cpu::new();
-      for addr in 0 .. prg_bytes { prg_rom[addr] = buffer[prg_addr + addr]; }
-      for addr in 0 .. chr_bytes { chr_rom[addr] = buffer[chr_addr + addr]; }
+      let mode = false; // ROMの中身の表示非幼児を切換え
+
+      if mode { println!("\n========== PRG-ROM =========="); }
+      for addr in 0 .. prg_bytes {
+        prg_rom[addr] = buffer[prg_addr + addr];
+        if mode { debug(prg_rom[addr], (addr + 1) % 17 == 0); }
+      }
+
+      if mode { println!("\n========== CHR-ROM =========="); }
+      for addr in 0 .. chr_bytes {
+        chr_rom[addr] = buffer[chr_addr + addr];
+        if mode { debug(chr_rom[addr], (addr + 1) % 17 == 0); }
+      }
+
+      println!();
     },
 
     _ => panic!("Invalid file type")
   }
-
-  println!("OK\x1b[m");
 
   Ok((
     prg_rom.to_vec(),

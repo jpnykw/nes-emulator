@@ -1,3 +1,9 @@
+use glutin_window::GlutinWindow;
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event_loop::{EventSettings, Events};
+use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
+use piston::window::WindowSettings;
+
 mod instruction;
 mod system;
 mod machine;
@@ -14,6 +20,23 @@ fn main() {
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(&mut machine, instruction::Interrupt::RESET);
+
+  // GUI
+  let opengl = OpenGL::V3_2;
+  let mut window: GlutinWindow = WindowSettings::new("NES Emulator", [256, 240])
+      .graphics_api(opengl)
+      .exit_on_esc(true)
+      .build()
+      .expect("Failed to build window.");
+
+  let mut events = Events::new(EventSettings::new());
+  while let Some(e) = events.next(&mut window) {
+    if let Some(args) = e.render_args() {
+      GlGraphics::new(opengl).draw(args.viewport(), |_, gl| {
+        graphics::clear([1.0, 1.0, 1.0, 1.0], gl);
+      });
+    }
+  }
 }
 
 // テストクン
@@ -35,7 +58,7 @@ fn load_cassette() {
 
   match result {
     Ok(_) => (),
-    _ => panic!("お前のカセットぶっ壊れとるよwwwww") // 了解！
+    _ => panic!("お前のカセット、まるでうんこだね") // 了解！
   }
 }
 
