@@ -9,14 +9,6 @@ pub enum Ines {
   )
 }
 
-#[derive(Debug)]
-pub enum Roms {
-  Data(
-    Vec<u8>,
-    Vec<u8>
-  )
-}
-
 pub fn read_nes(path: String) -> Ines {
   println!("Target: {}", path);
   let mut file = File::open(path).unwrap();
@@ -97,7 +89,7 @@ pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
       }
 
       let mut cpu = cpu::Cpu::new();
-      let mode = false; // ROMの中身の表示非幼児を切換え
+      let mode = false; // ROMの中身の表示/非表示を切換え
 
       if mode { println!("\n========== PRG-ROM =========="); }
       for addr in 0 .. prg_bytes {

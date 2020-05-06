@@ -114,6 +114,18 @@ pub enum Interrupt {
 #[derive(Debug)]
 pub struct Instruction(Opcode, Addressing);
 
+/// # CPUの命令
+///
+/// マシンコードを命令とアドレッシングモードに変換します
+///
+/// ```rust
+/// fn main() {
+///   // Create CPU
+///   let cpu = cpu::Cpu::new();
+///   // Return (LDA, Immediate)
+///   let inst = cpu.convert(0xa9);
+/// }
+/// ```
 impl Cpu {
   // TODO: ROMのマシンコードを命令に変換する
   pub fn convert(self, code: u8) -> Instruction {
