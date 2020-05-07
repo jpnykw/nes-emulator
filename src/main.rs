@@ -6,6 +6,8 @@ use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::{WindowSettings};
 */
 
+extern crate find_folder;
+extern crate freetype;
 extern crate piston_window;
 extern crate image;
 
@@ -20,9 +22,19 @@ mod cpu;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
-const SIZE: f64 = 1.0;
+const SIZE: f64 = 2.0;
 
 fn main() {
+  // デバッグ情報の描画用にフォントを読み込む
+  let assets = find_folder::Search::ParentsThenKids(3, 3)
+    .for_folder("assets")
+    .unwrap();
+
+  let frtp = freetype::Library::init().unwrap();
+  let font = assets.join("Geomanist-Regular.otf");
+  let mut face = frtp.new_face(&font, 0).unwrap();
+  face.set_pixel_sizes(0, 30).unwrap();
+
   let path = "./roms/helloworld.nes".to_string();
   let result = system::load_cassette(path);
 
@@ -47,7 +59,7 @@ fn main() {
   let opengl = OpenGL::V3_2;
   let mut window: PistonWindow = WindowSettings::new(
       "NES Emulator",
-      (WIDTH * SIZE as u32,
+      (WIDTH * SIZE as u32 + 200 * SIZE as u32,
       HEIGHT * SIZE as u32)
     )
     .graphics_api(opengl)
@@ -61,25 +73,21 @@ fn main() {
   );
 
   // 描画してみる
-  for i in 0 .. 25 {
-    let base = 16 * (33 + i); // 基準となるアドレス
+  for i in 0 .. 30 {
+    let base = 16 * (65 + i); // 基準となるアドレス 33: Symbol, 0-9, 65: A~Z, !?
     let sprite_under = &chr_rom[base .. base + 0x8]; // 0 ~ 7
     let sprite_over = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
 
     for y in 0 .. 8 {
       for x in 0 .. 8 {
         screen.put_pixel(
-          (x + i * 8) as u32, y as u32,
+          ((8 - x) + i * 8) as u32, y as u32,
           if (sprite_under[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
-      }
-    }
 
-    for y in 0 .. 8 {
-      for x in 0 .. 8 {
         screen.put_pixel(
-          (x + i * 8) as u32, y as u32,
+          ((8 - x) + i * 8) as u32, y as u32,
           if (sprite_over[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
@@ -104,6 +112,17 @@ fn main() {
       window.draw_2d(&e, |c, g, _| {
         clear([0.0, 0.0, 0.0, 1.0], g);
         image(&texture, c.transform.scale(SIZE, SIZE), g);
+
+        rectangle(
+          [0.0, 0.1, 0.2, 1.0],
+          [
+            WIDTH as f64 * SIZE + 1.0,
+            0.0,
+            200.0 * SIZE,
+            HEIGHT as f64 * SIZE,
+          ], // x, y, w, h
+          c.transform, g
+        );
       });
     }
   }
