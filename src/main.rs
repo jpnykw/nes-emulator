@@ -62,27 +62,25 @@ fn main() {
 
   // 描画してみる
   for i in 0 .. 25 {
-    let base = 16 * (33 + i);
+    let base = 16 * (33 + i); // 基準となるアドレス
     let sprite_under = &chr_rom[base .. base + 0x8]; // 0 ~ 7
     let sprite_over = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
 
     for y in 0 .. 8 {
-      let line = format!("{:>08b}", sprite_under[y]);
       for x in 0 .. 8 {
         screen.put_pixel(
           (x + i * 8) as u32, y as u32,
-          if line.chars().nth(x) == Some('1') { Rgba([255, 255, 255, 50]) }
+          if (sprite_under[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
       }
     }
 
     for y in 0 .. 8 {
-      let line = format!("{:>08b}", sprite_over[y]);
       for x in 0 .. 8 {
         screen.put_pixel(
           (x + i * 8) as u32, y as u32,
-          if line.chars().nth(x) == Some('1') { Rgba([255, 255, 255, 50]) }
+          if (sprite_over[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
       }
