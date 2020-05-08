@@ -13,6 +13,7 @@ extern crate image;
 
 use piston_window::*;
 use image::*;
+use std::env;
 
 mod instruction;
 mod system;
@@ -20,21 +21,18 @@ mod machine;
 mod ppu;
 mod cpu;
 
+const DEBUG_WIDTH: u32 = 200;
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 const SIZE: f64 = 2.0;
 
 fn main() {
-  // デバッグ情報の描画用にフォントを読み込む
-  let assets = find_folder::Search::ParentsThenKids(3, 3)
-    .for_folder("assets")
-    .unwrap();
+  // デバッグモード判定用
+  let args: Vec<String> = env::args().collect();
+  let debug = args.contains(&"debug".to_string()) || args.contains(&"db".to_string());
+  // println!("{}", debug);
 
-  let frtp = freetype::Library::init().unwrap();
-  let font = assets.join("Geomanist-Regular.otf");
-  let mut face = frtp.new_face(&font, 0).unwrap();
-  face.set_pixel_sizes(0, 30).unwrap();
-
+  // カセット読み込み
   let path = "./roms/helloworld.nes".to_string();
   let result = system::load_cassette(path);
 
@@ -59,7 +57,7 @@ fn main() {
   let opengl = OpenGL::V3_2;
   let mut window: PistonWindow = WindowSettings::new(
       "NES Emulator",
-      (WIDTH * SIZE as u32 + 200 * SIZE as u32,
+      (WIDTH * SIZE as u32 + if debug { DEBUG_WIDTH * SIZE as u32 } else { 0 },
       HEIGHT * SIZE as u32)
     )
     .graphics_api(opengl)
@@ -67,28 +65,40 @@ fn main() {
     .build()
     .expect("Failed to build window.");
 
+  // フォントの読み込み
+  /*
+  let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
+  let ref font = assets.join("Geomanist-Regular.otf");
+  let factory = window.factory.clone();
+  let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
+  */
+
   let mut screen = ImageBuffer::new(
     WIDTH * SIZE as u32,
     HEIGHT * SIZE as u32
   );
 
-  // 描画してみる
-  for i in 0 .. 30 {
-    let base = 16 * (65 + i); // 基準となるアドレス 33: Symbol, 0-9, 65: A~Z, !?
+  // 直接描画してみる
+  for i in 0 .. 32 {
+    let base = 16 * (0x41 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
     let sprite_under = &chr_rom[base .. base + 0x8]; // 0 ~ 7
     let sprite_over = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
 
     for y in 0 .. 8 {
       for x in 0 .. 8 {
+        fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
+        let dx = ((7 - x) + i * 8) as u32;
+        let dy = y as u32;
+
         screen.put_pixel(
-          ((8 - x) + i * 8) as u32, y as u32,
-          if (sprite_under[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
+          dx, dy,
+          if is_put(sprite_under[y], x as u8) { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
 
         screen.put_pixel(
-          ((8 - x) + i * 8) as u32, y as u32,
-          if (sprite_over[y] >> x) & 1 == 1 { Rgba([255, 255, 255, 50]) }
+          dx, dy,
+          if is_put(sprite_over[y], x as u8) { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
       }
@@ -113,16 +123,31 @@ fn main() {
         clear([0.0, 0.0, 0.0, 1.0], g);
         image(&texture, c.transform.scale(SIZE, SIZE), g);
 
-        rectangle(
-          [0.0, 0.1, 0.2, 1.0],
-          [
-            WIDTH as f64 * SIZE + 1.0,
-            0.0,
-            200.0 * SIZE,
-            HEIGHT as f64 * SIZE,
-          ], // x, y, w, h
-          c.transform, g
-        );
+        // デバッグ用の背景を右側に描画する
+        if debug {
+          rectangle(
+            [0.0, 0.1, 0.2, 1.0],
+            [
+              WIDTH as f64 * SIZE + 1.0,
+              0.0,
+              DEBUG_WIDTH as f64 * SIZE,
+              HEIGHT as f64 * SIZE,
+            ], // x, y, w, h
+            c.transform, g
+          );
+
+          // デバッグ用に情報を描画する
+          /*
+          let transform = c.transform.trans(100.0, 100.0);
+          text::Text::new_color([0.0, 0.0, 0.0, 1.0], 32).draw(
+            "unchi",
+            &mut glyphs,
+            &c.draw_state,
+            transform,
+            g
+          );
+          */
+        }
       });
     }
   }
