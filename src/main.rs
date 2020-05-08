@@ -66,12 +66,10 @@ fn main() {
     .expect("Failed to build window.");
 
   // フォントの読み込み
-  /*
   let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
   let ref font = assets.join("Geomanist-Regular.otf");
   let factory = window.factory.clone();
-  let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap();
-  */
+  // let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap(); // 謎多き人物
 
   let mut screen = ImageBuffer::new(
     WIDTH * SIZE as u32,
