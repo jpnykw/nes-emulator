@@ -9,7 +9,9 @@ pub enum Ines {
   )
 }
 
-pub fn read_nes(path: String) -> Ines {
+pub fn read_nes(
+  path: String
+) -> Ines {
   println!("Target: {}", path);
   let mut file = File::open(path).unwrap();
   let mut buffer: Vec<u8> = Vec::new();
@@ -20,11 +22,17 @@ pub fn read_nes(path: String) -> Ines {
   )
 }
 
-pub fn debug(val: u8, eol: bool) {
+pub fn debug(
+  val: u8,
+  eol: bool
+) {
   print!("{:>04x}{}", val, if eol { "\n" } else { " " });
 }
 
-pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
+pub fn load_cassette(
+  path: String,
+  mode: bool
+) -> Result<(Vec<u8>, Vec<u8>), String> {
   let mut prg_rom = [0; 0x8000];
   let mut chr_rom = [0; 0x2000];
   let ines = read_nes(path);
@@ -89,7 +97,6 @@ pub fn load_cassette(path: String) -> Result<(Vec<u8>, Vec<u8>), String> {
       }
 
       let mut cpu = cpu::Cpu::new();
-      let mode = false; // ROMの中身の表示/非表示を切換え
 
       if mode { println!("\n========== PRG-ROM =========="); }
       for addr in 0 .. prg_bytes {

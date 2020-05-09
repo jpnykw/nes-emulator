@@ -29,22 +29,17 @@ const SIZE: f64 = 2.0;
 fn main() {
   // デバッグモード判定用
   let args: Vec<String> = env::args().collect();
-  let debug = args.contains(&"debug".to_string()) || args.contains(&"db".to_string());
-  // println!("{}", debug);
+  let gui_debug = args.contains(&"gdebug".to_string()) || args.contains(&"gdb".to_string()) || args.contains(&"g".to_string());
+  let cui_debug = args.contains(&"cdebug".to_string()) || args.contains(&"cdb".to_string()) || args.contains(&"c".to_string());
 
   // カセット読み込み
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::load_cassette(path);
+  let result = system::load_cassette(path, cui_debug);
 
   let chr_rom = match result {
     Ok(rom) => rom.1,
     Err(_) => Vec::new()
   };
-
-  // let base = 0x210; // 16 の倍数になっているので良さそう💃
-  // for i in 0 .. 8 {
-  //   println!("{:>08b}", sprite_under[i]);
-  // }
 
   let mut machine = machine::Machine::new();
   let mut cpu = cpu::Cpu::new();
@@ -56,14 +51,14 @@ fn main() {
   // GUI
   let opengl = OpenGL::V3_2;
   let mut window: PistonWindow = WindowSettings::new(
-      "NES Emulator",
-      (WIDTH * SIZE as u32 + if debug { DEBUG_WIDTH * SIZE as u32 } else { 0 },
-      HEIGHT * SIZE as u32)
-    )
-    .graphics_api(opengl)
-    .exit_on_esc(true)
-    .build()
-    .expect("Failed to build window.");
+    "NES Emulator",
+    (WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH * SIZE as u32 } else { 0 },
+    HEIGHT * SIZE as u32)
+  )
+  .graphics_api(opengl)
+  .exit_on_esc(true)
+  .build()
+  .expect("Failed to build window.");
 
   // フォントの読み込み
   let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
@@ -77,26 +72,26 @@ fn main() {
   );
 
   // 直接描画してみる
-  for i in 0 .. 32 {
-    let base = 16 * (0x41 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
-    let sprite_under = &chr_rom[base .. base + 0x8]; // 0 ~ 7
-    let sprite_over = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
+  for i in 0 .. (32 * 10) {
+    let base = 16 * (0x21 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
+    let pattern_low = &chr_rom[base .. base + 0x8]; // 0 ~ 7
+    let pattern_high = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
 
     for y in 0 .. 8 {
       for x in 0 .. 8 {
         fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
-        let dx = ((7 - x) + i * 8) as u32;
-        let dy = y as u32;
+        let dx = ((7 - x) + (i + 1) % 32 * 8) as u32;
+        let dy = y as u32 + ((i + 1) / 32) as u32 * 8;
 
         screen.put_pixel(
           dx, dy,
-          if is_put(sprite_under[y], x as u8) { Rgba([255, 255, 255, 50]) }
+          if is_put(pattern_low[y], x as u8) { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
 
         screen.put_pixel(
           dx, dy,
-          if is_put(sprite_over[y], x as u8) { Rgba([255, 255, 255, 50]) }
+          if is_put(pattern_high[y], x as u8) { Rgba([255, 255, 255, 50]) }
           else { Rgba([0; 4]) }
         );
       }
@@ -122,7 +117,7 @@ fn main() {
         image(&texture, c.transform.scale(SIZE, SIZE), g);
 
         // デバッグ用の背景を右側に描画する
-        if debug {
+        if gui_debug {
           rectangle(
             [0.0, 0.1, 0.2, 1.0],
             [
@@ -166,11 +161,11 @@ fn cpu_register() {
 #[test]
 fn load_cassette() {
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::load_cassette(path);
+  let result = system::load_cassette(path, false);
 
   match result {
     Ok(_) => (),
-    _ => panic!("お前のカセット、まるでうんこだね") // 了解！
+    _ => panic!("カスのカセット、カスット") // 了解！
   }
 }
 
@@ -179,7 +174,7 @@ fn check_rom_data() {
   let prg_data = [0x78, 0xa2, 0xff, 0x9a, 0xa9, 0x00, 0x8d, 0x00, 0x20, 0x8d]; // from 0
   let chr_data = [0x1c, 0x3e, 0x3e, 0x3e, 0x1c, 0x1c, 0x1c, 0x1c, 0x18, 0x3c]; // from 528
   let path = "./roms/helloworld.nes".to_string();
-  let result = system::load_cassette(path);
+  let result = system::load_cassette(path, false);
 
   for id in 0 .. 10 {
     match &result {
