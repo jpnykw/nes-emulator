@@ -112,7 +112,7 @@ pub enum Interrupt {
 }
 
 #[derive(Debug)]
-pub struct Instruction(Opcode, Addressing);
+pub struct Instruction(Opcode, Addressing, u8);
 
 /// # CPUの命令
 ///
@@ -132,13 +132,13 @@ impl Cpu {
     match code {
       /// 転送命令
       // LDA
-      0xa9 => Instruction(Opcode::LDA, Addressing::Immediate),
-      0xa5 => Instruction(Opcode::LDA, Addressing::Zeropage),
-      0xb5 => Instruction(Opcode::LDA, Addressing::ZeropageX),
-      0xad => Instruction(Opcode::LDA, Addressing::Absolute),
-      0xbd => Instruction(Opcode::LDA, Addressing::AbsoluteX),
-      0xa1 => Instruction(Opcode::LDA, Addressing::AbsoluteY),
-      0xb1 => Instruction(Opcode::LDA, Addressing::IndirectY),
+      0xa9 => Instruction(Opcode::LDA, Addressing::Immediate, 2),
+      0xa5 => Instruction(Opcode::LDA, Addressing::Zeropage, 3),
+      0xb5 => Instruction(Opcode::LDA, Addressing::ZeropageX, 4),
+      0xad => Instruction(Opcode::LDA, Addressing::Absolute, 4),
+      0xbd => Instruction(Opcode::LDA, Addressing::AbsoluteX, 4),
+      0xa1 => Instruction(Opcode::LDA, Addressing::AbsoluteY, 4),
+      0xb1 => Instruction(Opcode::LDA, Addressing::IndirectY, 5),
       // LDX
       0xa2 => Instruction(Opcode::LDX, Addressing::Immediate),
       0xa6 => Instruction(Opcode::LDX, Addressing::Zeropage),
