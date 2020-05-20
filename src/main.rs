@@ -32,18 +32,27 @@ fn main() {
   let gui_debug = args.contains(&"gdebug".to_string()) || args.contains(&"gdb".to_string()) || args.contains(&"g".to_string());
   let cui_debug = args.contains(&"cdebug".to_string()) || args.contains(&"cdb".to_string()) || args.contains(&"c".to_string());
 
+  // 初期化する
+  let mut machine = machine::Machine::new();
+  let mut cpu = cpu::Cpu::new();
+  let mut ppu = ppu::Ppu::new();
+
   // カセット読み込み
   let path = "./roms/helloworld.nes".to_string();
   let result = system::load_cassette(path, cui_debug);
 
-  let chr_rom = match result {
-    Ok(rom) => rom.1,
-    Err(_) => Vec::new()
+  let (prg_rom, chr_rom) = match result {
+    Ok(rom) => rom,
+    Err(_) => panic!("ROM切り離せなかった")
   };
 
-  let mut machine = machine::Machine::new();
-  let mut cpu = cpu::Cpu::new();
-  let mut ppu = ppu::Ppu::new();
+  // machineにROMをセット
+  machine.set_roms(prg_rom, chr_rom);
+
+  // 直接CPUを実行していく(実際はループ)
+  for _ in 0 .. 5 {
+    cpu.exec(&mut machine);
+  }
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(&mut machine, instruction::Interrupt::RESET);

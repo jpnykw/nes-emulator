@@ -112,7 +112,7 @@ pub enum Interrupt {
 }
 
 #[derive(Debug)]
-pub struct Instruction(Opcode, Addressing);
+pub struct Instruction(u8, Opcode, Addressing); // 頭はCycle数
 
 /// # CPUの命令
 ///
@@ -132,310 +132,312 @@ impl Cpu {
     match code {
       /// 転送命令
       // LDA
-      0xa9 => Instruction(Opcode::LDA, Addressing::Immediate),
-      0xa5 => Instruction(Opcode::LDA, Addressing::Zeropage),
-      0xb5 => Instruction(Opcode::LDA, Addressing::ZeropageX),
-      0xad => Instruction(Opcode::LDA, Addressing::Absolute),
-      0xbd => Instruction(Opcode::LDA, Addressing::AbsoluteX),
-      0xa1 => Instruction(Opcode::LDA, Addressing::AbsoluteY),
-      0xb1 => Instruction(Opcode::LDA, Addressing::IndirectY),
+      0xa9 => Instruction(2, Opcode::LDA, Addressing::Immediate),
+      0xa5 => Instruction(3, Opcode::LDA, Addressing::Zeropage),
+      0xb5 => Instruction(4, Opcode::LDA, Addressing::ZeropageX),
+      0xad => Instruction(4, Opcode::LDA, Addressing::Absolute),
+      0xbd => Instruction(4, Opcode::LDA, Addressing::AbsoluteX),
+      0xb9 => Instruction(4, Opcode::LDA, Addressing::AbsoluteY),
+      0xa1 => Instruction(5, Opcode::LDA, Addressing::IndirectX),
+      0xb1 => Instruction(6, Opcode::LDA, Addressing::IndirectY),
       // LDX
-      0xa2 => Instruction(Opcode::LDX, Addressing::Immediate),
-      0xa6 => Instruction(Opcode::LDX, Addressing::Zeropage),
-      0xb6 => Instruction(Opcode::LDX, Addressing::ZeropageY),
-      0xae => Instruction(Opcode::LDX, Addressing::Absolute),
-      0xbe => Instruction(Opcode::LDX, Addressing::AbsoluteY),
+      0xa2 => Instruction(2, Opcode::LDX, Addressing::Immediate),
+      0xa6 => Instruction(3, Opcode::LDX, Addressing::Zeropage),
+      0xb6 => Instruction(4, Opcode::LDX, Addressing::ZeropageY),
+      0xae => Instruction(4, Opcode::LDX, Addressing::Absolute),
+      0xbe => Instruction(4, Opcode::LDX, Addressing::AbsoluteY),
       // LDY
-      0xa0 => Instruction(Opcode::LDY, Addressing::Immediate),
-      0xa4 => Instruction(Opcode::LDY, Addressing::Zeropage),
-      0xb4 => Instruction(Opcode::LDY, Addressing::ZeropageX),
-      0xac => Instruction(Opcode::LDY, Addressing::Absolute),
-      0xbc => Instruction(Opcode::LDY, Addressing::AbsoluteX),
+      0xa0 => Instruction(2, Opcode::LDY, Addressing::Immediate),
+      0xa4 => Instruction(3, Opcode::LDY, Addressing::Zeropage),
+      0xb4 => Instruction(4, Opcode::LDY, Addressing::ZeropageX),
+      0xac => Instruction(4, Opcode::LDY, Addressing::Absolute),
+      0xbc => Instruction(4, Opcode::LDY, Addressing::AbsoluteX),
       // STA
-      0x85 => Instruction(Opcode::STA, Addressing::Zeropage),
-      0x95 => Instruction(Opcode::STA, Addressing::ZeropageX),
-      0x8d => Instruction(Opcode::STA, Addressing::Absolute),
-      0x9d => Instruction(Opcode::STA, Addressing::AbsoluteX),
-      0x99 => Instruction(Opcode::STA, Addressing::AbsoluteY),
-      0x81 => Instruction(Opcode::STA, Addressing::IndirectX),
-      0x91 => Instruction(Opcode::STA, Addressing::IndirectY),
+      0x85 => Instruction(3, Opcode::STA, Addressing::Zeropage),
+      0x95 => Instruction(4, Opcode::STA, Addressing::ZeropageX),
+      0x8d => Instruction(4, Opcode::STA, Addressing::Absolute),
+      0x9d => Instruction(5, Opcode::STA, Addressing::AbsoluteX),
+      0x99 => Instruction(5, Opcode::STA, Addressing::AbsoluteY),
+      0x81 => Instruction(6, Opcode::STA, Addressing::IndirectX),
+      0x91 => Instruction(6, Opcode::STA, Addressing::IndirectY),
       // STX
-      0x86 => Instruction(Opcode::STX, Addressing::Zeropage),
-      0x96 => Instruction(Opcode::STX, Addressing::ZeropageY),
-      0x8e => Instruction(Opcode::STX, Addressing::Absolute),
+      0x86 => Instruction(3, Opcode::STX, Addressing::Zeropage),
+      0x96 => Instruction(4, Opcode::STX, Addressing::ZeropageY),
+      0x8e => Instruction(4, Opcode::STX, Addressing::Absolute),
       // STY
-      0x84 => Instruction(Opcode::STY, Addressing::Zeropage),
-      0x94 => Instruction(Opcode::STY, Addressing::ZeropageX),
-      0x8c => Instruction(Opcode::STY, Addressing::Absolute),
+      0x84 => Instruction(3, Opcode::STY, Addressing::Zeropage),
+      0x94 => Instruction(4, Opcode::STY, Addressing::ZeropageX),
+      0x8c => Instruction(4, Opcode::STY, Addressing::Absolute),
       // TAX, TAY, TSX, TXA, TXS, TYA
-      0xaa => Instruction(Opcode::TAX, Addressing::Implied),
-      0xa8 => Instruction(Opcode::TAY, Addressing::Implied),
-      0xba => Instruction(Opcode::TSX, Addressing::Implied),
-      0x8a => Instruction(Opcode::TXA, Addressing::Implied),
-      0x9a => Instruction(Opcode::TXS, Addressing::Implied),
-      0x98 => Instruction(Opcode::TYA, Addressing::Implied),
+      0xaa => Instruction(2, Opcode::TAX, Addressing::Implied),
+      0xa8 => Instruction(2, Opcode::TAY, Addressing::Implied),
+      0xba => Instruction(2, Opcode::TSX, Addressing::Implied),
+      0x8a => Instruction(2, Opcode::TXA, Addressing::Implied),
+      0x9a => Instruction(2, Opcode::TXS, Addressing::Implied),
+      0x98 => Instruction(2, Opcode::TYA, Addressing::Implied),
 
       /// 算術命令
       // ADC
-      0x69 => Instruction(Opcode::ADC, Addressing::Immediate),
-      0x65 => Instruction(Opcode::ADC, Addressing::Zeropage),
-      0x75 => Instruction(Opcode::ADC, Addressing::ZeropageX),
-      0x6d => Instruction(Opcode::ADC, Addressing::Absolute),
-      0x7d => Instruction(Opcode::ADC, Addressing::AbsoluteX),
-      0x79 => Instruction(Opcode::ADC, Addressing::AbsoluteY),
-      0x61 => Instruction(Opcode::ADC, Addressing::IndirectX),
-      0x71 => Instruction(Opcode::ADC, Addressing::IndirectY),
+      0x69 => Instruction(2, Opcode::ADC, Addressing::Immediate),
+      0x65 => Instruction(3, Opcode::ADC, Addressing::Zeropage),
+      0x75 => Instruction(4, Opcode::ADC, Addressing::ZeropageX),
+      0x6d => Instruction(4, Opcode::ADC, Addressing::Absolute),
+      0x7d => Instruction(4, Opcode::ADC, Addressing::AbsoluteX),
+      0x79 => Instruction(4, Opcode::ADC, Addressing::AbsoluteY),
+      0x61 => Instruction(6, Opcode::ADC, Addressing::IndirectX),
+      0x71 => Instruction(5, Opcode::ADC, Addressing::IndirectY),
       // AND
-      0x29 => Instruction(Opcode::AND, Addressing::Immediate),
-      0x25 => Instruction(Opcode::AND, Addressing::Zeropage),
-      0x35 => Instruction(Opcode::AND, Addressing::ZeropageX),
-      0x2d => Instruction(Opcode::AND, Addressing::Absolute),
-      0x3d => Instruction(Opcode::AND, Addressing::AbsoluteX),
-      0x39 => Instruction(Opcode::AND, Addressing::AbsoluteY),
-      0x21 => Instruction(Opcode::AND, Addressing::IndirectX),
-      0x31 => Instruction(Opcode::AND, Addressing::IndirectY),
+      0x29 => Instruction(2, Opcode::AND, Addressing::Immediate),
+      0x25 => Instruction(3, Opcode::AND, Addressing::Zeropage),
+      0x35 => Instruction(4, Opcode::AND, Addressing::ZeropageX),
+      0x2d => Instruction(4, Opcode::AND, Addressing::Absolute),
+      0x3d => Instruction(4, Opcode::AND, Addressing::AbsoluteX),
+      0x39 => Instruction(4, Opcode::AND, Addressing::AbsoluteY),
+      0x21 => Instruction(6, Opcode::AND, Addressing::IndirectX),
+      0x31 => Instruction(5, Opcode::AND, Addressing::IndirectY),
       // ASL
-      0x0a => Instruction(Opcode::ASL, Addressing::Accumulator),
-      0x06 => Instruction(Opcode::ASL, Addressing::Zeropage),
-      0x16 => Instruction(Opcode::ASL, Addressing::ZeropageX),
-      0x0e => Instruction(Opcode::ASL, Addressing::Absolute),
-      0x1e => Instruction(Opcode::ASL, Addressing::AbsoluteX),
+      0x0a => Instruction(2, Opcode::ASL, Addressing::Accumulator),
+      0x06 => Instruction(5, Opcode::ASL, Addressing::Zeropage),
+      0x16 => Instruction(6, Opcode::ASL, Addressing::ZeropageX),
+      0x0e => Instruction(6, Opcode::ASL, Addressing::Absolute),
+      0x1e => Instruction(7, Opcode::ASL, Addressing::AbsoluteX),
       // BIT
-      0x24 => Instruction(Opcode::BIT, Addressing::Zeropage),
-      0x2c => Instruction(Opcode::BIT, Addressing::Absolute),
+      0x24 => Instruction(3, Opcode::BIT, Addressing::Zeropage),
+      0x2c => Instruction(4, Opcode::BIT, Addressing::Absolute),
       // CMP
-      0xc9 => Instruction(Opcode::CMP, Addressing::Immediate),
-      0xc5 => Instruction(Opcode::CMP, Addressing::Zeropage),
-      0xd5 => Instruction(Opcode::CMP, Addressing::ZeropageX),
-      0xcd => Instruction(Opcode::CMP, Addressing::Absolute),
-      0xdd => Instruction(Opcode::CMP, Addressing::AbsoluteX),
-      0xd9 => Instruction(Opcode::CMP, Addressing::AbsoluteY),
-      0xc1 => Instruction(Opcode::CMP, Addressing::IndirectX),
-      0xd1 => Instruction(Opcode::CMP, Addressing::IndirectY),
+      0xc9 => Instruction(2, Opcode::CMP, Addressing::Immediate),
+      0xc5 => Instruction(3, Opcode::CMP, Addressing::Zeropage),
+      0xd5 => Instruction(4, Opcode::CMP, Addressing::ZeropageX),
+      0xcd => Instruction(4, Opcode::CMP, Addressing::Absolute),
+      0xdd => Instruction(4, Opcode::CMP, Addressing::AbsoluteX),
+      0xd9 => Instruction(4, Opcode::CMP, Addressing::AbsoluteY),
+      0xc1 => Instruction(6, Opcode::CMP, Addressing::IndirectX),
+      0xd1 => Instruction(5, Opcode::CMP, Addressing::IndirectY),
       // CPX
-      0xe0 => Instruction(Opcode::CPX, Addressing::Immediate),
-      0xe4 => Instruction(Opcode::CPX, Addressing::Zeropage),
-      0xec => Instruction(Opcode::CPX, Addressing::Absolute),
+      0xe0 => Instruction(2, Opcode::CPX, Addressing::Immediate),
+      0xe4 => Instruction(3, Opcode::CPX, Addressing::Zeropage),
+      0xec => Instruction(4, Opcode::CPX, Addressing::Absolute),
       // CPY
-      0xc0 => Instruction(Opcode::CPX, Addressing::Immediate),
-      0xc4 => Instruction(Opcode::CPX, Addressing::Zeropage),
-      0xcc => Instruction(Opcode::CPX, Addressing::Absolute),
+      0xc0 => Instruction(2, Opcode::CPX, Addressing::Immediate),
+      0xc4 => Instruction(3, Opcode::CPX, Addressing::Zeropage),
+      0xcc => Instruction(4, Opcode::CPX, Addressing::Absolute),
       // DEC
-      0xc6 => Instruction(Opcode::DEC, Addressing::Zeropage),
-      0xd6 => Instruction(Opcode::DEC, Addressing::ZeropageX),
-      0xce => Instruction(Opcode::DEC, Addressing::Absolute),
-      0xde => Instruction(Opcode::DEC, Addressing::AbsoluteX),
+      0xc6 => Instruction(5, Opcode::DEC, Addressing::Zeropage),
+      0xd6 => Instruction(6, Opcode::DEC, Addressing::ZeropageX),
+      0xce => Instruction(6, Opcode::DEC, Addressing::Absolute),
+      0xde => Instruction(7, Opcode::DEC, Addressing::AbsoluteX),
       // DEX, DEY
-      0xca => Instruction(Opcode::DEX, Addressing::Implied),
-      0x88 => Instruction(Opcode::DEY, Addressing::Implied),
+      0xca => Instruction(2, Opcode::DEX, Addressing::Implied),
+      0x88 => Instruction(2, Opcode::DEY, Addressing::Implied),
       // EOR
-      0x49 => Instruction(Opcode::EOR, Addressing::Immediate),
-      0x45 => Instruction(Opcode::EOR, Addressing::Zeropage),
-      0x55 => Instruction(Opcode::EOR, Addressing::ZeropageX),
-      0x4d => Instruction(Opcode::EOR, Addressing::Absolute),
-      0x5d => Instruction(Opcode::EOR, Addressing::AbsoluteX),
-      0x59 => Instruction(Opcode::EOR, Addressing::AbsoluteY),
-      0x41 => Instruction(Opcode::EOR, Addressing::IndirectX),
-      0x51 => Instruction(Opcode::EOR, Addressing::IndirectY),
+      0x49 => Instruction(2, Opcode::EOR, Addressing::Immediate),
+      0x45 => Instruction(3, Opcode::EOR, Addressing::Zeropage),
+      0x55 => Instruction(4, Opcode::EOR, Addressing::ZeropageX),
+      0x4d => Instruction(4, Opcode::EOR, Addressing::Absolute),
+      0x5d => Instruction(4, Opcode::EOR, Addressing::AbsoluteX),
+      0x59 => Instruction(4, Opcode::EOR, Addressing::AbsoluteY),
+      0x41 => Instruction(6, Opcode::EOR, Addressing::IndirectX),
+      0x51 => Instruction(5, Opcode::EOR, Addressing::IndirectY),
       // INC
-      0xe6 => Instruction(Opcode::INC, Addressing::Zeropage),
-      0xf6 => Instruction(Opcode::INC, Addressing::ZeropageX),
-      0xee => Instruction(Opcode::INC, Addressing::Absolute),
-      0xfe => Instruction(Opcode::INC, Addressing::AbsoluteX),
+      0xe6 => Instruction(5, Opcode::INC, Addressing::Zeropage),
+      0xf6 => Instruction(6, Opcode::INC, Addressing::ZeropageX),
+      0xee => Instruction(6, Opcode::INC, Addressing::Absolute),
+      0xfe => Instruction(7, Opcode::INC, Addressing::AbsoluteX),
       // INX, INY
-      0xe8 => Instruction(Opcode::INX, Addressing::Implied),
-      0xc8 => Instruction(Opcode::INY, Addressing::Implied),
+      0xe8 => Instruction(2, Opcode::INX, Addressing::Implied),
+      0xc8 => Instruction(2, Opcode::INY, Addressing::Implied),
       // LSR
-      0x4a => Instruction(Opcode::LSR, Addressing::Accumulator),
-      0x46 => Instruction(Opcode::LSR, Addressing::Zeropage),
-      0x56 => Instruction(Opcode::LSR, Addressing::ZeropageX),
-      0x4e => Instruction(Opcode::LSR, Addressing::Absolute),
-      0x5e => Instruction(Opcode::LSR, Addressing::AbsoluteX),
+      0x4a => Instruction(2, Opcode::LSR, Addressing::Accumulator),
+      0x46 => Instruction(5, Opcode::LSR, Addressing::Zeropage),
+      0x56 => Instruction(6, Opcode::LSR, Addressing::ZeropageX),
+      0x4e => Instruction(6, Opcode::LSR, Addressing::Absolute),
+      0x5e => Instruction(7, Opcode::LSR, Addressing::AbsoluteX),
       // ORA
-      0x09 => Instruction(Opcode::ORA, Addressing::Immediate),
-      0x05 => Instruction(Opcode::ORA, Addressing::Zeropage),
-      0x15 => Instruction(Opcode::ORA, Addressing::ZeropageX),
-      0x0d => Instruction(Opcode::ORA, Addressing::Absolute),
-      0x1d => Instruction(Opcode::ORA, Addressing::AbsoluteX),
-      0x19 => Instruction(Opcode::ORA, Addressing::AbsoluteY),
-      0x01 => Instruction(Opcode::ORA, Addressing::IndirectX),
-      0x11 => Instruction(Opcode::ORA, Addressing::IndirectY),
+      0x09 => Instruction(2, Opcode::ORA, Addressing::Immediate),
+      0x05 => Instruction(3, Opcode::ORA, Addressing::Zeropage),
+      0x15 => Instruction(4, Opcode::ORA, Addressing::ZeropageX),
+      0x0d => Instruction(4, Opcode::ORA, Addressing::Absolute),
+      0x1d => Instruction(4, Opcode::ORA, Addressing::AbsoluteX),
+      0x19 => Instruction(4, Opcode::ORA, Addressing::AbsoluteY),
+      0x01 => Instruction(6, Opcode::ORA, Addressing::IndirectX),
+      0x11 => Instruction(5, Opcode::ORA, Addressing::IndirectY),
       // ROL
-      0x2a => Instruction(Opcode::ROL, Addressing::Accumulator),
-      0x26 => Instruction(Opcode::ROL, Addressing::Zeropage),
-      0x36 => Instruction(Opcode::ROL, Addressing::ZeropageX),
-      0x2e => Instruction(Opcode::ROL, Addressing::Absolute),
-      0x3e => Instruction(Opcode::ROL, Addressing::AbsoluteX),
+      0x2a => Instruction(2, Opcode::ROL, Addressing::Accumulator),
+      0x26 => Instruction(5, Opcode::ROL, Addressing::Zeropage),
+      0x36 => Instruction(6, Opcode::ROL, Addressing::ZeropageX),
+      0x2e => Instruction(6, Opcode::ROL, Addressing::Absolute),
+      0x3e => Instruction(7, Opcode::ROL, Addressing::AbsoluteX),
       // ROR
-      0x6a => Instruction(Opcode::ROR, Addressing::Accumulator),
-      0x66 => Instruction(Opcode::ROR, Addressing::Zeropage),
-      0x76 => Instruction(Opcode::ROR, Addressing::ZeropageX),
-      0x6e => Instruction(Opcode::ROR, Addressing::Absolute),
-      0x7e => Instruction(Opcode::ROR, Addressing::AbsoluteX),
+      0x6a => Instruction(2, Opcode::ROR, Addressing::Accumulator),
+      0x66 => Instruction(5, Opcode::ROR, Addressing::Zeropage),
+      0x76 => Instruction(6, Opcode::ROR, Addressing::ZeropageX),
+      0x6e => Instruction(6, Opcode::ROR, Addressing::Absolute),
+      0x7e => Instruction(7, Opcode::ROR, Addressing::AbsoluteX),
       // SBC
-      0xe9 => Instruction(Opcode::SBC, Addressing::Immediate),
-      0xe5 => Instruction(Opcode::SBC, Addressing::Zeropage),
-      0xf5 => Instruction(Opcode::SBC, Addressing::ZeropageX),
-      0xed => Instruction(Opcode::SBC, Addressing::Absolute),
-      0xfd => Instruction(Opcode::SBC, Addressing::AbsoluteX),
-      0xf9 => Instruction(Opcode::SBC, Addressing::AbsoluteY),
-      0xe1 => Instruction(Opcode::SBC, Addressing::IndirectX),
-      0xf1 => Instruction(Opcode::SBC, Addressing::IndirectY),
+      0xe9 => Instruction(2, Opcode::SBC, Addressing::Immediate),
+      0xe5 => Instruction(3, Opcode::SBC, Addressing::Zeropage),
+      0xf5 => Instruction(4, Opcode::SBC, Addressing::ZeropageX),
+      0xed => Instruction(4, Opcode::SBC, Addressing::Absolute),
+      0xfd => Instruction(4, Opcode::SBC, Addressing::AbsoluteX),
+      0xf9 => Instruction(4, Opcode::SBC, Addressing::AbsoluteY),
+      0xe1 => Instruction(6, Opcode::SBC, Addressing::IndirectX),
+      0xf1 => Instruction(5, Opcode::SBC, Addressing::IndirectY),
 
       /// スタック命令
       // PHA, PHP, PLA, PLP
-      0x48 => Instruction(Opcode::PHA, Addressing::Implied),
-      0x08 => Instruction(Opcode::PHP, Addressing::Implied),
-      0x68 => Instruction(Opcode::PLA, Addressing::Implied),
-      0x28 => Instruction(Opcode::PLP, Addressing::Implied),
+      0x48 => Instruction(3, Opcode::PHA, Addressing::Implied),
+      0x08 => Instruction(3, Opcode::PHP, Addressing::Implied),
+      0x68 => Instruction(4, Opcode::PLA, Addressing::Implied),
+      0x28 => Instruction(4, Opcode::PLP, Addressing::Implied),
 
       /// ジャンプ命令
       // JMP
-      0x4c => Instruction(Opcode::JMP, Addressing::Absolute),
-      0x6c => Instruction(Opcode::JMP, Addressing::Indirect),
+      0x4c => Instruction(3, Opcode::JMP, Addressing::Absolute),
+      0x6c => Instruction(5, Opcode::JMP, Addressing::Indirect),
       // JSR, RTS, RTI
-      0x20 => Instruction(Opcode::JSR, Addressing::Absolute),
-      0x60 => Instruction(Opcode::RTS, Addressing::Implied),
-      0x40 => Instruction(Opcode::RTI, Addressing::Implied),
+      0x20 => Instruction(6, Opcode::JSR, Addressing::Absolute),
+      0x60 => Instruction(6, Opcode::RTS, Addressing::Implied),
+      0x40 => Instruction(6, Opcode::RTI, Addressing::Implied),
 
       /// 分岐命令
       // BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS
-      0x90 => Instruction(Opcode::BCC, Addressing::Relative),
-      0xb0 => Instruction(Opcode::BCS, Addressing::Relative),
-      0xf0 => Instruction(Opcode::BEQ, Addressing::Relative),
-      0x30 => Instruction(Opcode::BMI, Addressing::Relative),
-      0xd0 => Instruction(Opcode::BNE, Addressing::Relative),
-      0x10 => Instruction(Opcode::BPL, Addressing::Relative),
-      0x50 => Instruction(Opcode::BVC, Addressing::Relative),
-      0x70 => Instruction(Opcode::BVS, Addressing::Relative),
+      0x90 => Instruction(2, Opcode::BCC, Addressing::Relative),
+      0xb0 => Instruction(2, Opcode::BCS, Addressing::Relative),
+      0xf0 => Instruction(2, Opcode::BEQ, Addressing::Relative),
+      0x30 => Instruction(2, Opcode::BMI, Addressing::Relative),
+      0xd0 => Instruction(2, Opcode::BNE, Addressing::Relative),
+      0x10 => Instruction(2, Opcode::BPL, Addressing::Relative),
+      0x50 => Instruction(2, Opcode::BVC, Addressing::Relative),
+      0x70 => Instruction(2, Opcode::BVS, Addressing::Relative),
 
       /// フラグ変更命令
       // CLC, CLD, CLI, CLV, SEC, SED, SEI
-      0x18 => Instruction(Opcode::CLC, Addressing::Implied),
-      0xd8 => Instruction(Opcode::CLD, Addressing::Implied),
-      0x58 => Instruction(Opcode::CLI, Addressing::Implied),
-      0xb8 => Instruction(Opcode::CLV, Addressing::Implied),
-      0x38 => Instruction(Opcode::SEC, Addressing::Implied),
-      0xf8 => Instruction(Opcode::SED, Addressing::Implied),
-      0x78 => Instruction(Opcode::SEI, Addressing::Implied),
+      0x18 => Instruction(2, Opcode::CLC, Addressing::Implied),
+      0xd8 => Instruction(2, Opcode::CLD, Addressing::Implied),
+      0x58 => Instruction(2, Opcode::CLI, Addressing::Implied),
+      0xb8 => Instruction(2, Opcode::CLV, Addressing::Implied),
+      0x38 => Instruction(2, Opcode::SEC, Addressing::Implied),
+      0xf8 => Instruction(2, Opcode::SED, Addressing::Implied),
+      0x78 => Instruction(2, Opcode::SEI, Addressing::Implied),
 
       /// その他
       // BRK
-      0x00 => Instruction(Opcode::BRK, Addressing::Implied),
+      0x00 => Instruction(7, Opcode::BRK, Addressing::Implied),
       // NOP
-      0x1a => Instruction(Opcode::NOP, Addressing::Implied),
-      0x3a => Instruction(Opcode::NOP, Addressing::Implied),
-      0x5a => Instruction(Opcode::NOP, Addressing::Implied),
-      0x7a => Instruction(Opcode::NOP, Addressing::Implied),
-      0xda => Instruction(Opcode::NOP, Addressing::Implied),
-      0xea => Instruction(Opcode::NOP, Addressing::Implied),
-      0xfa => Instruction(Opcode::NOP, Addressing::Implied),
+      0x1a => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x3a => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x5a => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x7a => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0xda => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0xea => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0xfa => Instruction(1, Opcode::NOP, Addressing::Implied),
       // SKB
-      0x80 => Instruction(Opcode::SKB, Addressing::Immediate),
-      0x82 => Instruction(Opcode::SKB, Addressing::Immediate),
-      0x89 => Instruction(Opcode::SKB, Addressing::Immediate),
-      0xc2 => Instruction(Opcode::SKB, Addressing::Immediate),
-      0xe2 => Instruction(Opcode::SKB, Addressing::Immediate),
+      0x80 => Instruction(2, Opcode::SKB, Addressing::Immediate),
+      0x82 => Instruction(2, Opcode::SKB, Addressing::Immediate),
+      0x89 => Instruction(2, Opcode::SKB, Addressing::Immediate),
+      0xc2 => Instruction(2, Opcode::SKB, Addressing::Immediate),
+      0xe2 => Instruction(2, Opcode::SKB, Addressing::Immediate),
 
       // unofficial_opcodesが必要らしい
       /// RMW 命令
       // DCP
-      0xc3 => Instruction(Opcode::DCP, Addressing::IndirectX),
-      0xc7 => Instruction(Opcode::DCP, Addressing::Zeropage),
-      0xcf => Instruction(Opcode::DCP, Addressing::Absolute),
-      0xd3 => Instruction(Opcode::DCP, Addressing::IndirectY),
-      0xd7 => Instruction(Opcode::DCP, Addressing::ZeropageX),
-      0xdb => Instruction(Opcode::DCP, Addressing::AbsoluteY),
-      0xdf => Instruction(Opcode::DCP, Addressing::AbsoluteX),
+      0xc3 => Instruction(8, Opcode::DCP, Addressing::IndirectX),
+      0xc7 => Instruction(5, Opcode::DCP, Addressing::Zeropage),
+      0xcf => Instruction(6, Opcode::DCP, Addressing::Absolute),
+      0xd3 => Instruction(8, Opcode::DCP, Addressing::IndirectY),
+      0xd7 => Instruction(6, Opcode::DCP, Addressing::ZeropageX),
+      0xdb => Instruction(7, Opcode::DCP, Addressing::AbsoluteY),
+      0xdf => Instruction(7, Opcode::DCP, Addressing::AbsoluteX),
       // ISC
-      0xe3 => Instruction(Opcode::ISC, Addressing::IndirectX),
-      0xe7 => Instruction(Opcode::ISC, Addressing::Zeropage),
-      0xef => Instruction(Opcode::ISC, Addressing::Absolute),
-      0xf3 => Instruction(Opcode::ISC, Addressing::IndirectY),
-      0xf7 => Instruction(Opcode::ISC, Addressing::ZeropageX),
-      0xfb => Instruction(Opcode::ISC, Addressing::AbsoluteX),
-      0xff => Instruction(Opcode::ISC, Addressing::AbsoluteX),
+      0xe3 => Instruction(8, Opcode::ISC, Addressing::IndirectX),
+      0xe7 => Instruction(5, Opcode::ISC, Addressing::Zeropage),
+      0xef => Instruction(6, Opcode::ISC, Addressing::Absolute),
+      0xf3 => Instruction(8, Opcode::ISC, Addressing::IndirectY),
+      0xf7 => Instruction(6, Opcode::ISC, Addressing::ZeropageX),
+      0xfb => Instruction(7, Opcode::ISC, Addressing::AbsoluteX),
+      0xff => Instruction(7, Opcode::ISC, Addressing::AbsoluteX),
       // RLA
-      0x23 => Instruction(Opcode::RLA, Addressing::IndirectX),
-      0x27 => Instruction(Opcode::RLA, Addressing::Zeropage),
-      0x2f => Instruction(Opcode::RLA, Addressing::Absolute),
-      0x33 => Instruction(Opcode::RLA, Addressing::IndirectY),
-      0x37 => Instruction(Opcode::RLA, Addressing::ZeropageX),
-      0x3b => Instruction(Opcode::RLA, Addressing::AbsoluteY),
-      0x3f => Instruction(Opcode::RLA, Addressing::AbsoluteX),
+      0x23 => Instruction(8, Opcode::RLA, Addressing::IndirectX),
+      0x27 => Instruction(5, Opcode::RLA, Addressing::Zeropage),
+      0x2f => Instruction(6, Opcode::RLA, Addressing::Absolute),
+      0x33 => Instruction(8, Opcode::RLA, Addressing::IndirectY),
+      0x37 => Instruction(6, Opcode::RLA, Addressing::ZeropageX),
+      0x3b => Instruction(7, Opcode::RLA, Addressing::AbsoluteY),
+      0x3f => Instruction(7, Opcode::RLA, Addressing::AbsoluteX),
       // RRA
-      0x63 => Instruction(Opcode::RRA, Addressing::IndirectX),
-      0x67 => Instruction(Opcode::RRA, Addressing::Zeropage),
-      0x6f => Instruction(Opcode::RRA, Addressing::Absolute),
-      0x73 => Instruction(Opcode::RRA, Addressing::IndirectY),
-      0x77 => Instruction(Opcode::RRA, Addressing::ZeropageX),
-      0x7b => Instruction(Opcode::RRA, Addressing::AbsoluteY),
-      0x7f => Instruction(Opcode::RRA, Addressing::AbsoluteX),
+      0x63 => Instruction(8, Opcode::RRA, Addressing::IndirectX),
+      0x67 => Instruction(5, Opcode::RRA, Addressing::Zeropage),
+      0x6f => Instruction(6, Opcode::RRA, Addressing::Absolute),
+      0x73 => Instruction(8, Opcode::RRA, Addressing::IndirectY),
+      0x77 => Instruction(6, Opcode::RRA, Addressing::ZeropageX),
+      0x7b => Instruction(7, Opcode::RRA, Addressing::AbsoluteY),
+      0x7f => Instruction(7, Opcode::RRA, Addressing::AbsoluteX),
       // SLO
-      0x03 => Instruction(Opcode::SLO, Addressing::IndirectX),
-      0x07 => Instruction(Opcode::SLO, Addressing::Zeropage),
-      0x0f => Instruction(Opcode::SLO, Addressing::Absolute),
-      0x13 => Instruction(Opcode::SLO, Addressing::IndirectY),
-      0x17 => Instruction(Opcode::SLO, Addressing::ZeropageX),
-      0x1b => Instruction(Opcode::SLO, Addressing::AbsoluteY),
-      0x1f => Instruction(Opcode::SLO, Addressing::AbsoluteX),
+      0x03 => Instruction(8, Opcode::SLO, Addressing::IndirectX),
+      0x07 => Instruction(5, Opcode::SLO, Addressing::Zeropage),
+      0x0f => Instruction(6, Opcode::SLO, Addressing::Absolute),
+      0x13 => Instruction(8, Opcode::SLO, Addressing::IndirectY),
+      0x17 => Instruction(6, Opcode::SLO, Addressing::ZeropageX),
+      0x1b => Instruction(7, Opcode::SLO, Addressing::AbsoluteY),
+      0x1f => Instruction(7, Opcode::SLO, Addressing::AbsoluteX),
       // SRE
-      0x43 => Instruction(Opcode::SRE, Addressing::IndirectX),
-      0x47 => Instruction(Opcode::SRE, Addressing::Zeropage),
-      0x4f => Instruction(Opcode::SRE, Addressing::Absolute),
-      0x53 => Instruction(Opcode::SRE, Addressing::IndirectY),
-      0x57 => Instruction(Opcode::SRE, Addressing::ZeropageX),
-      0x5b => Instruction(Opcode::SRE, Addressing::AbsoluteY),
-      0x5f => Instruction(Opcode::SRE, Addressing::AbsoluteX),
+      0x43 => Instruction(8, Opcode::SRE, Addressing::IndirectX),
+      0x47 => Instruction(5, Opcode::SRE, Addressing::Zeropage),
+      0x4f => Instruction(6, Opcode::SRE, Addressing::Absolute),
+      0x53 => Instruction(8, Opcode::SRE, Addressing::IndirectY),
+      0x57 => Instruction(6, Opcode::SRE, Addressing::ZeropageX),
+      0x5b => Instruction(7, Opcode::SRE, Addressing::AbsoluteY),
+      0x5f => Instruction(7, Opcode::SRE, Addressing::AbsoluteX),
 
       /// 結合演算子
-      0x4b => Instruction(Opcode::ALR, Addressing::Immediate),
-      0x0b => Instruction(Opcode::ANC, Addressing::Immediate),
-      0x6b => Instruction(Opcode::ARR, Addressing::Immediate),
-      0xcb => Instruction(Opcode::AXS, Addressing::Immediate),
+      0x4b => Instruction(2, Opcode::ALR, Addressing::Immediate),
+      0x0b => Instruction(2, Opcode::ANC, Addressing::Immediate),
+      0x6b => Instruction(2, Opcode::ARR, Addressing::Immediate),
+      0xcb => Instruction(2, Opcode::AXS, Addressing::Immediate),
       // LAX
-      0xa3 => Instruction(Opcode::LAX, Addressing::IndirectX),
-      0xa7 => Instruction(Opcode::LAX, Addressing::Zeropage),
-      0xaf => Instruction(Opcode::LAX, Addressing::Absolute),
-      0xb3 => Instruction(Opcode::LAX, Addressing::IndirectY),
-      0xb7 => Instruction(Opcode::LAX, Addressing::ZeropageY),
-      0xbf => Instruction(Opcode::LAX, Addressing::AbsoluteY),
+      0xa3 => Instruction(6, Opcode::LAX, Addressing::IndirectX),
+      0xa7 => Instruction(3, Opcode::LAX, Addressing::Zeropage),
+      0xaf => Instruction(4, Opcode::LAX, Addressing::Absolute),
+      0xb3 => Instruction(5, Opcode::LAX, Addressing::IndirectY),
+      0xb7 => Instruction(4, Opcode::LAX, Addressing::ZeropageY),
+      0xbf => Instruction(4, Opcode::LAX, Addressing::AbsoluteY),
       // SAX
-      0x83 => Instruction(Opcode::SAX, Addressing::IndirectX),
-      0x87 => Instruction(Opcode::SAX, Addressing::Zeropage),
-      0x8f => Instruction(Opcode::SAX, Addressing::Absolute),
-      0x97 => Instruction(Opcode::SAX, Addressing::ZeropageY),
+      0x83 => Instruction(6, Opcode::SAX, Addressing::IndirectX),
+      0x87 => Instruction(3, Opcode::SAX, Addressing::Zeropage),
+      0x8f => Instruction(4, Opcode::SAX, Addressing::Absolute),
+      0x97 => Instruction(4, Opcode::SAX, Addressing::ZeropageY),
       // IGN
-      0x0c => Instruction(Opcode::IGN, Addressing::Absolute),
+      0x0c => Instruction(4, Opcode::IGN, Addressing::Absolute),
 
-      0x1c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
-      0x3c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
-      0x5c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
-      0x7c => Instruction(Opcode::IGN, Addressing::AbsoluteX),
-      0xdc => Instruction(Opcode::IGN, Addressing::AbsoluteX),
-      0xfc => Instruction(Opcode::IGN, Addressing::AbsoluteX),
+      // 4 or 5 cycle と書いてあったけど4っぽい?
+      0x1c => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
+      0x3c => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
+      0x5c => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
+      0x7c => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
+      0xdc => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
+      0xfc => Instruction(4, Opcode::IGN, Addressing::AbsoluteX),
 
-      0x04 => Instruction(Opcode::IGN, Addressing::Zeropage),
-      0x44 => Instruction(Opcode::IGN, Addressing::Zeropage),
-      0x64 => Instruction(Opcode::IGN, Addressing::Zeropage),
+      0x04 => Instruction(3, Opcode::IGN, Addressing::Zeropage),
+      0x44 => Instruction(3, Opcode::IGN, Addressing::Zeropage),
+      0x64 => Instruction(3, Opcode::IGN, Addressing::Zeropage),
 
-      0x14 => Instruction(Opcode::IGN, Addressing::ZeropageX),
-      0x34 => Instruction(Opcode::IGN, Addressing::ZeropageX),
-      0x54 => Instruction(Opcode::IGN, Addressing::ZeropageX),
-      0x74 => Instruction(Opcode::IGN, Addressing::ZeropageX),
-      0xd4 => Instruction(Opcode::IGN, Addressing::ZeropageX),
-      0xf4 => Instruction(Opcode::IGN, Addressing::ZeropageX),
+      0x14 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
+      0x34 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
+      0x54 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
+      0x74 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
+      0xd4 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
+      0xf4 => Instruction(4, Opcode::IGN, Addressing::ZeropageX),
 
       // Unknown code となったものをNOPとしておく
-      0x02 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x12 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x22 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x32 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x42 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x52 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x62 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x72 => Instruction(Opcode::NOP, Addressing::Immediate),
-      0x92 => Instruction(Opcode::NOP, Addressing::Immediate),
+      0x02 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x12 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x22 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x32 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x42 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x52 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x62 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x72 => Instruction(1, Opcode::NOP, Addressing::Implied),
+      0x92 => Instruction(1, Opcode::NOP, Addressing::Implied),
 
       // TODO: たまに未知の値を検出するとパニックするのでNOPで対応
       // TODO: 実装方法が正しいのかは不明 [要検証]
@@ -443,13 +445,10 @@ impl Cpu {
       _ => {
         let text = format!("Unknown code 0x{:>02x}", code);
 
-        // 本来はすべてpanicさせたい
-        let mode = false;
-        if mode { panic!(text); }
-
-        // 仮で通す
+        // 本来はすべてpanicさせるべき(?)
+        if false { panic!(text); }
         // println!("{}", text);
-        Instruction(Opcode::NOP, Addressing::Immediate)
+        Instruction(1, Opcode::NOP, Addressing::Implied)
       }
     }
   }
@@ -498,15 +497,6 @@ impl Cpu {
     }
   }
 
-  pub fn exec(&mut self, inst: Opcode) {
-    match inst {
-      Opcode::ADC => {
-      },
-
-      _ => panic!("Unknown opcode")
-    }
-  }
-
   // フラグ(n-bit目)の読み出し
   fn read_i_flag(&self) -> u8 {
     (self.p >> 3) & 1
@@ -527,5 +517,23 @@ impl Cpu {
     } else {
       self.p & (!0x08)
     };
+  }
+
+  // 実行したいニャンね
+  pub fn exec(&mut self, machine: &mut machine::Machine) -> u8 {
+    // pcからfetchするらしい
+    let code = machine.prg_rom[self.pc as usize];
+    // let inst = self.convert(code);
+    let Instruction(cycle, opcode, addressing) = self.convert(code);
+    self.pc += 1;
+
+    println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addressing);
+
+    match opcode {
+      Opcode::LDA => (),
+      _ => ()
+    }
+
+    cycle
   }
 }

@@ -9,6 +9,13 @@ pub enum Ines {
   )
 }
 
+pub enum Roms {
+  Data(
+    [u8; 0x8000],
+    [u8; 0x2000]
+  )
+}
+
 pub fn read_nes(
   path: String
 ) -> Ines {
@@ -32,7 +39,7 @@ pub fn debug(
 pub fn load_cassette(
   path: String,
   mode: bool
-) -> Result<(Vec<u8>, Vec<u8>), String> {
+) -> Result<([u8; 0x8000], [u8; 0x2000]), String> {
   let mut prg_rom = [0; 0x8000];
   let mut chr_rom = [0; 0x2000];
   let ines = read_nes(path);
@@ -116,8 +123,5 @@ pub fn load_cassette(
     _ => panic!("Invalid file type")
   }
 
-  Ok((
-    prg_rom.to_vec(),
-    chr_rom.to_vec()
-  ))
+  Ok((prg_rom, chr_rom))
 }
