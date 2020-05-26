@@ -526,20 +526,62 @@ impl Cpu {
     (self.p >> 8) & 1
   }
 
-  // フラグ(n bit目)の操作
+  // フラグ操作
+  fn set_c_flag(&mut self, stat: bool) {
+    self.p = if stat {
+      self.p | 0x01  // 1 < 0
+    } else {
+      self.p & (!0x01)
+    };
+  }
+
+  fn set_z_flag(&mut self, stat: bool) {
+    self.p = if stat {
+      self.p | 0x02  // 1 < 1
+    } else {
+      self.p & (!0x02)
+    };
+  }
+
   fn set_i_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x04
+      self.p | 0x04  // 1 < 2
     } else {
       self.p & (!0x04)
     };
   }
 
-  fn set_b_flag(&mut self, stat: bool) {
+  fn set_d_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x08
+      self.p | 0x08  // 1 < 3
     } else {
       self.p & (!0x08)
+    };
+  }
+
+  fn set_b_flag(&mut self, stat: bool) {
+    self.p = if stat {
+      self.p | 0x10  // 1 < 4
+    } else {
+      self.p & (!0x10)
+    };
+  }
+
+  // 1 < 5 は常に1
+
+  fn set_v_flag(&mut self, stat: bool) {
+    self.p = if stat {
+      self.p | 0x40  // 1 < 6
+    } else {
+      self.p & (!0x40)
+    };
+  }
+
+  fn set_n_flag(&mut self, stat: bool) {
+    self.p = if stat {
+      self.p | 0x80  // 1 < 7
+    } else {
+      self.p & (!0x80)
     };
   }
 
@@ -566,6 +608,7 @@ impl Cpu {
 
     println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr);
 
+    // http://obelisk.me.uk/6502/reference.html
     match opcode {
       Opcode::ADC => {
         let a = self.a;
