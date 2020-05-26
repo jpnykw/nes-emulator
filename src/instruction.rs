@@ -623,6 +623,17 @@ impl Cpu {
         self.set_n_flag((res & 0x80) == 0x80);
 
         self.a = res;
+      },
+
+      Opcode::AND => {
+        let a = self.a;
+        let m = self.fetch_data(addr, machine);
+        let res = a & m;
+
+        self.set_z_flag(a == 0);
+        self.set_n_flag((res & 0x80) == 0x80);
+
+        self.a = res;
       }
 
       _ => {}
