@@ -561,23 +561,18 @@ impl Cpu {
     // pcからfetchするらしい
     let code = machine.prg_rom[self.pc as usize];
     // let inst = self.convert(code);
-    let Instruction(cycle, opcode, addressing) = self.convert(code);
+    let Instruction(cycle, opcode, addr) = self.convert(code);
     self.pc += 1;
 
-    println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addressing);
+    println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr);
 
     match opcode {
-      Opcode::LDA => {
-        self.a = self.fetch_data(addressing, machine);
-      },
-
-      Opcode::LDX => {
-        self.x = self.fetch_data(addressing, machine);
-      },
-
-      Opcode::LDY => {
-        self.y = self.fetch_data(addressing, machine);
-      },
+      Opcode::ADC => {
+        let a = self.a;
+        let m = self.fetch_data(addr, machine);
+        let c = self.read_c_flag();
+        self.a = (a + m + c) & 0xff;
+      }
 
       _ => {}
     }
