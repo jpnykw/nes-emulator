@@ -614,7 +614,15 @@ impl Cpu {
         let a = self.a;
         let m = self.fetch_data(addr, machine);
         let c = self.read_c_flag();
-        self.a = (a + m + c) & 0xff;
+        let res = (a + m + c) & 0xff;
+
+        self.set_c_flag((a + m + c) > 0xff);
+        self.set_z_flag(a == 0);
+        // 1 < 7
+        self.set_v_flag((self.a ^ res) & (m ^ res) & 0x80 == 0x80);
+        self.set_n_flag((res & 0x80) == 0x80);
+
+        self.a = res;
       }
 
       _ => {}
