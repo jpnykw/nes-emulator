@@ -498,8 +498,32 @@ impl Cpu {
   }
 
   // フラグ(n-bit目)の読み出し
+  fn read_c_flag(&self) -> u8 {
+    (self.p >> 1) & 1
+  }
+
+  fn read_z_flag(&self) -> u8 {
+    (self.p >> 2) & 1
+  }
+
   fn read_i_flag(&self) -> u8 {
     (self.p >> 3) & 1
+  }
+
+  fn read_d_flag(&self) -> u8 {
+    (self.p >> 4) & 1
+  }
+
+  fn read_b_flag(&self) -> u8 {
+    (self.p >> 5) & 1
+  }
+
+  fn read_v_flag(&self) -> u8 {
+    (self.p >> 7) & 1
+  }
+
+  fn read_n_flag(&self) -> u8 {
+    (self.p >> 8) & 1
   }
 
   // フラグ(n bit目)の操作
@@ -519,6 +543,19 @@ impl Cpu {
     };
   }
 
+  fn fetch_data(
+    self,
+    addmode: Addressing,
+    machine: &mut machine::Machine
+  ) -> u8 {
+    match addmode {
+      Addressing::Implied => 0,
+      Addressing::Accumulator => self.a,
+      // Addressing::Immediate =>,
+      _ => 100
+    }
+  }
+
   // 実行したいニャンね
   pub fn exec(&mut self, machine: &mut machine::Machine) -> u8 {
     // pcからfetchするらしい
@@ -530,8 +567,19 @@ impl Cpu {
     println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addressing);
 
     match opcode {
-      Opcode::LDA => (),
-      _ => ()
+      Opcode::LDA => {
+        self.a = self.fetch_data(addressing, machine);
+      },
+
+      Opcode::LDX => {
+        self.x = self.fetch_data(addressing, machine);
+      },
+
+      Opcode::LDY => {
+        self.y = self.fetch_data(addressing, machine);
+      },
+
+      _ => {}
     }
 
     cycle
