@@ -590,6 +590,8 @@ impl Cpu {
     addmode: Addressing,
     machine: &mut machine::Machine
   ) -> u8 {
+    // TODO: 正しいアドレス指定を実装する
+    // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
     match addmode {
       Addressing::Implied => 0,
       Addressing::Accumulator => self.a,
