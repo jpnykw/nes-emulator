@@ -529,7 +529,7 @@ impl Cpu {
   // フラグ操作
   fn set_c_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x01  // 1 < 0
+      self.p | 0x01  // 1 << 0
     } else {
       self.p & (!0x01)
     };
@@ -537,7 +537,7 @@ impl Cpu {
 
   fn set_z_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x02  // 1 < 1
+      self.p | 0x02  // 1 << 1
     } else {
       self.p & (!0x02)
     };
@@ -545,7 +545,7 @@ impl Cpu {
 
   fn set_i_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x04  // 1 < 2
+      self.p | 0x04  // 1 << 2
     } else {
       self.p & (!0x04)
     };
@@ -553,7 +553,7 @@ impl Cpu {
 
   fn set_d_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x08  // 1 < 3
+      self.p | 0x08  // 1 << 3
     } else {
       self.p & (!0x08)
     };
@@ -561,17 +561,17 @@ impl Cpu {
 
   fn set_b_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x10  // 1 < 4
+      self.p | 0x10  // 1 << 4
     } else {
       self.p & (!0x10)
     };
   }
 
-  // 1 < 5 は常に1
+  // 1 << 5 は常に1
 
   fn set_v_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x40  // 1 < 6
+      self.p | 0x40  // 1 << 6
     } else {
       self.p & (!0x40)
     };
@@ -579,7 +579,7 @@ impl Cpu {
 
   fn set_n_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x80  // 1 < 7
+      self.p | 0x80  // 1 << 7
     } else {
       self.p & (!0x80)
     };
@@ -619,10 +619,9 @@ impl Cpu {
         let res = (a + m + c) & 0xff;
 
         self.set_c_flag((a + m + c) > 0xff);
-        self.set_z_flag(a == 0);
-        // 1 < 7
-        self.set_v_flag((self.a ^ res) & (m ^ res) & 0x80 == 0x80);
-        self.set_n_flag((res & 0x80) == 0x80);
+        self.set_z_flag(res == 0);
+        self.set_v_flag((a ^ res) & (m ^ res) & (1 << 7) == 1 << 7);
+        self.set_n_flag((res & (1 << 7)) == 1 << 7);
 
         self.a = res;
       },
