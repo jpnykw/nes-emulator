@@ -50,7 +50,8 @@ fn main() {
   machine.set_roms(prg_rom, chr_rom);
 
   // 直接CPUを実行していく(実際はループ)
-  for _ in 0 .. 60 {
+  for i in 0 .. 60 {
+    println!("\n!-------------------- {} --------------------!", i);
     cpu.exec(&mut machine);
   }
 

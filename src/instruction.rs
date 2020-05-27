@@ -593,10 +593,8 @@ impl Cpu {
     // TODO: 正しいアドレス指定を実装する
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
     match addmode {
-      Addressing::Implied => 0,
       Addressing::Accumulator => self.a,
-      // Addressing::Immediate =>,
-      _ => 100
+      _ => 0
     }
   }
 
@@ -608,9 +606,19 @@ impl Cpu {
     let Instruction(cycle, opcode, addr) = self.convert(code);
     self.pc += 1;
 
-    println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr);
+    // println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr);
+    println!(
+      "Exec:
+  \x1b[38;2;252;200;0mCycles: {}\x1b[m,
+  \x1b[38;2;20;210;240mInstruction: {:?}\x1b[m,
+  \x1b[38;2;170;95;230mAddressing: {:?}\x1b[m",
+      cycle,
+      opcode,
+      addr
+    );
 
     // http://obelisk.me.uk/6502/reference.html
+    // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
     match opcode {
       Opcode::ADC => {
         let a = self.a;
@@ -623,6 +631,19 @@ impl Cpu {
         self.set_v_flag((a ^ res) & (m ^ res) & (1 << 7) == 1 << 7);
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
 
+        self.a = res;
+      },
+
+      Opcode::SBC => {
+        let a = self.a;
+        let m = self.fetch_data(addr, machine);
+        let c = self.read_c_flag();
+        let res = a - m - !c;
+
+        self.set_n_flag((res & (1 << 7)) == 1 << 7);
+        self.set_v_flag((a ^ m) & (m ^ res) & (1 << 7) == 1 << 7);
+        self.set_z_flag(res == 0);
+        self.set_c_flag(res >= 0);
         self.a = res;
       },
 
@@ -639,6 +660,14 @@ impl Cpu {
 
       _ => {}
     }
+
+    println!(
+      "Stat:
+  \x1b[38;2;252;200;0mAccumulator: {}\x1b[m,
+  \x1b[38;2;20;210;240mFlag: {:b}\x1b[m",
+      self.a,
+      self.p
+    );
 
     cycle
   }
