@@ -653,10 +653,19 @@ impl Cpu {
         let res = a & m;
 
         self.set_z_flag(a == 0);
-        self.set_n_flag((res & 0x80) == 0x80);
-
+        self.set_n_flag((res & (1 << 7)) == 1 << 7);
         self.a = res;
-      }
+      },
+
+      Opcode::ORA => {
+        let a = self.a;
+        let m = self.fetch_data(addr, machine);
+        let res = a | m;
+
+        self.set_z_flag(a == 0);
+        self.set_n_flag((res & (1 << 7)) == 1 << 7);
+        self.a = res;
+      },
 
       _ => {}
     }
