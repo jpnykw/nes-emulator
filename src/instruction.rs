@@ -667,6 +667,16 @@ impl Cpu {
         self.a = res;
       },
 
+      Opcode::EOR => {
+        let a = self.a;
+        let m = self.fetch_data(addr, machine);
+        let res = a ^ m;
+
+        self.set_z_flag(a == 0);
+        self.set_n_flag((res & (1 << 7)) == 1 << 7);
+        self.a = res;
+      },
+
       _ => {}
     }
 
