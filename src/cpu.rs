@@ -53,7 +53,7 @@ impl Cpu {
 
   pub fn pop_stack(&mut self, machine: &mut machine::Machine, addr: usize) -> u8 {
     self.sp += 1;
-    machine.fetch(self.sp)
+    machine.fetch(self.sp as usize)
   }
 }
 
