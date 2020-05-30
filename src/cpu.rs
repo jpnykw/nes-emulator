@@ -47,13 +47,13 @@ impl Cpu {
 
   pub fn push_stack(&mut self, machine: &mut machine::Machine, val: u8) {
     let addr = 0x100 + self.sp as u16;
-    machine.store(addr as usize, val);
+    machine.store(self.sp as usize, val);
     self.sp -= 1;
   }
 
   pub fn pop_stack(&mut self, machine: &mut machine::Machine, addr: usize) -> u8 {
     self.sp += 1;
-    machine.fetch(addr)
+    machine.fetch(self.sp)
   }
 }
 
