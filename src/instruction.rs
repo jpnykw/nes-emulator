@@ -598,6 +598,15 @@ impl Cpu {
     }
   }
 
+  fn fetch_operand(
+    self,
+    addmode: Addressing
+  ) -> u16 {
+    match addmode {
+      _ => 0
+    }
+  }
+
   // 実行したいニャンね
   pub fn exec(&mut self, machine: &mut machine::Machine) -> u8 {
     // pcからfetchするらしい
@@ -620,6 +629,7 @@ impl Cpu {
     // http://obelisk.me.uk/6502/reference.html
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
     match opcode {
+     // calculation
       Opcode::ADC => {
         let a = self.a;
         let m = self.fetch_data(addr, machine);
@@ -676,6 +686,26 @@ impl Cpu {
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
         self.a = res;
       },
+
+      // shift or rotation
+      Opcode::ASL => {
+        let a = self.a;
+        let res = a << 1;
+
+        if addr == Addressing::Accumulator {
+          self.a = res;
+        } else {
+          // TODO:　CPUに書き戻し
+        }
+      },
+
+      Opcode::LSR => {},
+
+      Opcode::ROL => {},
+
+      Opcode::ROR => {},
+
+      // branch
 
       _ => {}
     }
