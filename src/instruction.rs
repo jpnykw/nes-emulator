@@ -86,7 +86,7 @@ pub enum Opcode {
   IGN
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Addressing {
   Implied,
   Accumulator,
