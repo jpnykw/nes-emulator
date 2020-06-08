@@ -693,9 +693,9 @@ impl Cpu {
         let a = self.a;
         let res = a << 1;
 
-        self.set_c_flag((a >> 1) & 1);
+        self.set_c_flag((a >> 1) & 1 == 1);
         self.set_z_flag(res == 0);
-        self.set_n_flag((res >> 1) & 1);
+        self.set_n_flag((res >> 1) & 1 == 1);
 
         if addr_mode == Addressing::Accumulator {
           self.a = res;
