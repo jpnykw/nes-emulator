@@ -693,9 +693,9 @@ impl Cpu {
         let a = self.a;
         let res = a << 1;
 
-        self.set_c_flag((a >> 1) & 1 == 1);
-        self.set_z_flag(res == 0);
         self.set_n_flag((res >> 1) & 1 == 1);
+        self.set_z_flag(res == 0);
+        self.set_c_flag((a >> 1) & 1 == 1);
 
         if addr_mode == Addressing::Accumulator {
           self.a = res;
@@ -709,6 +709,16 @@ impl Cpu {
       Opcode::LSR => {
         let a = self.a;
         let res = a >> 1;
+
+        self.set_n_flag((res >> 7) & 1 == 1 << 7);
+        self.set_z_flag(res == 0);
+        self.set_c_flag((a >> 0) & 1 == 1);
+
+        if addr_mode == Addressing::Accumulator {
+          self.a = res;
+        } else {
+          machine.write(0, res);
+        }
       },
 
       Opcode::ROL => {},
