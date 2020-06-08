@@ -706,7 +706,10 @@ impl Cpu {
         }
       },
 
-      Opcode::LSR => {},
+      Opcode::LSR => {
+        let a = self.a;
+        let res = a >> 1;
+      },
 
       Opcode::ROL => {},
 
