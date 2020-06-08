@@ -42,4 +42,9 @@ impl Machine {
   pub fn fetch(self, addr: usize) -> u8 {
     self.wram[addr]
   }
+
+  pub fn write(&mut self, addr: usize, val: u8) {
+    // TODO: PPUのミラーなどを考慮する
+    self.wram[addr] = val;
+  }
 }

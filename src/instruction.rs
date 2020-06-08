@@ -587,12 +587,12 @@ impl Cpu {
 
   fn fetch_data(
     self,
-    addmode: Addressing,
+    addr_mode: Addressing,
     machine: &mut machine::Machine
   ) -> u8 {
     // TODO: 正しいアドレス指定を実装する
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
-    match addmode {
+    match addr_mode {
       Addressing::Accumulator => self.a,
       _ => 0
     }
@@ -600,9 +600,9 @@ impl Cpu {
 
   fn fetch_operand(
     self,
-    addmode: Addressing
+    addr_mode: Addressing
   ) -> u16 {
-    match addmode {
+    match addr_mode {
       _ => 0
     }
   }
@@ -612,18 +612,18 @@ impl Cpu {
     // pcからfetchするらしい
     let code = machine.prg_rom[self.pc as usize];
     // let inst = self.convert(code);
-    let Instruction(cycle, opcode, addr) = self.convert(code);
+    let Instruction(cycle, opcode, addr_mode) = self.convert(code);
     self.pc += 1;
 
-    // println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr);
+    // println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr_mode);
     println!(
       "Exec:
   \x1b[38;2;252;200;0mCycles: {}\x1b[m,
   \x1b[38;2;20;210;240mInstruction: {:?}\x1b[m,
-  \x1b[38;2;170;95;230mAddressing: {:?}\x1b[m",
+  \x1b[38;2;170;95;230maddr_modeessing: {:?}\x1b[m",
       cycle,
       opcode,
-      addr
+      addr_mode
     );
 
     // http://obelisk.me.uk/6502/reference.html
@@ -632,7 +632,7 @@ impl Cpu {
      // calculation
       Opcode::ADC => {
         let a = self.a;
-        let m = self.fetch_data(addr, machine);
+        let m = self.fetch_data(addr_mode, machine);
         let c = self.read_c_flag();
         let res = (a + m + c) & 0xff;
 
@@ -646,7 +646,7 @@ impl Cpu {
 
       Opcode::SBC => {
         let a = self.a;
-        let m = self.fetch_data(addr, machine);
+        let m = self.fetch_data(addr_mode, machine);
         let c = self.read_c_flag();
         let res = a - m - !c;
 
@@ -659,7 +659,7 @@ impl Cpu {
 
       Opcode::AND => {
         let a = self.a;
-        let m = self.fetch_data(addr, machine);
+        let m = self.fetch_data(addr_mode, machine);
         let res = a & m;
 
         self.set_z_flag(a == 0);
@@ -669,7 +669,7 @@ impl Cpu {
 
       Opcode::ORA => {
         let a = self.a;
-        let m = self.fetch_data(addr, machine);
+        let m = self.fetch_data(addr_mode, machine);
         let res = a | m;
 
         self.set_z_flag(a == 0);
@@ -679,7 +679,7 @@ impl Cpu {
 
       Opcode::EOR => {
         let a = self.a;
-        let m = self.fetch_data(addr, machine);
+        let m = self.fetch_data(addr_mode, machine);
         let res = a ^ m;
 
         self.set_z_flag(a == 0);
@@ -689,13 +689,16 @@ impl Cpu {
 
       // shift or rotation
       Opcode::ASL => {
+        // モード別でアドレスをFetchしてくる
         let a = self.a;
         let res = a << 1;
 
-        if addr == Addressing::Accumulator {
+        if addr_mode == Addressing::Accumulator {
           self.a = res;
         } else {
-          // TODO:　CPUに書き戻し
+          // TODO: wramを書き換える
+          // TODO: Fetchしたアドレスに置き換える
+          machine.write(0, res);
         }
       },
 
