@@ -842,8 +842,8 @@ impl Cpu {
       // 割り込み処理
       Opcode::BRK => {
         self.interrupt(
-          &mut machine,
-          instruction::Interrupt::BRK
+          machine,
+          Interrupt::BRK
         );
       },
 
@@ -854,6 +854,22 @@ impl Cpu {
 
         self.p = stat;
         self.pc = (higher << 8) | lower;
+      },
+
+      // 比較演算
+      Opcode::CMP => {
+        let m = self.fetch_data(addr_mode, machine);
+        let res = self.a - m;
+
+        self.set_n_flag((res >> 7) & 1 == 1);
+        self.set_z_flag(res == 0);
+        self.set_c_flag(res >= 0);
+      },
+
+      Opcode::CPX => {
+      },
+
+      Opcode::CPY => {
       },
 
       _ => {}
