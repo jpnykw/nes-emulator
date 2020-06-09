@@ -814,8 +814,8 @@ impl Cpu {
       Opcode::BIT => {
         let res = self.fetch_data(addr_mode);
 
-        self.set_n_flag(res && (1 << 7) == 1 << 7);
-        self.set_v_flag(res && (1 << 6) == 1 << 6);
+        self.set_n_flag(res & (1 << 7) == 1 << 7);
+        self.set_v_flag(res & (1 << 6) == 1 << 6);
         self.set_z_flag(self.a & res == 0);
       }
 
