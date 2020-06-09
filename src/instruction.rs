@@ -884,6 +884,28 @@ impl Cpu {
         self.set_c_flag(self.x >= m);
       },
 
+      // ワンアゲ, ワンサゲ
+      // https://twitter.com/yuki384love/status/1270365593800081408
+      Opcode::INC => {
+        let addr = self.fetch_operand(addr_mode);
+        let m = self.fetch_data(addr_mode, machine);
+        let res = m + 1;
+        machine.write(addr as usize, res);
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag((res >> 7) & 1 == (1 << 7));
+      },
+
+      Opcode::DEC => {
+        let addr = self.fetch_operand(addr_mode);
+        let m = self.fetch_data(addr_mode, machine);
+        let res = m - 1;
+        machine.write(addr as usize, res);
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag((res >> 7) & 1 == (1 << 7));
+      }
+
       _ => {}
     }
 
