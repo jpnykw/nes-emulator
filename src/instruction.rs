@@ -499,31 +499,30 @@ impl Cpu {
 
   // フラグ(n-bit目)の読み出し
   fn read_c_flag(&self) -> u8 {
-    (self.p >> 1) & 1
+    self.p & (1 << 0)
   }
 
   fn read_z_flag(&self) -> u8 {
-    (self.p >> 2) & 1
+    self.p & (1 << 1)
   }
 
   fn read_i_flag(&self) -> u8 {
-    (self.p >> 3) & 1
+    self.p & (1 << 2)
   }
 
   fn read_d_flag(&self) -> u8 {
-    (self.p >> 4) & 1
+    self.p & (1 << 3)
   }
 
   fn read_b_flag(&self) -> u8 {
-    (self.p >> 5) & 1
+    self.p & (1 << 4)
   }
 
   fn read_v_flag(&self) -> u8 {
-    (self.p >> 7) & 1
+    self.p & (1 << 6)
   }
 
   fn read_n_flag(&self) -> u8 {
-    // (self.p >> 8) & 1
     self.p & (1 << 7)
   }
 
