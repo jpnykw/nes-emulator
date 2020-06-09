@@ -825,6 +825,20 @@ impl Cpu {
         self.pc = addr;
       },
 
+      Opcode::JSR => {
+        let addr = self.fetch_operand(addr_mode);
+        self.push_stack(self.pc >> 8);
+        self.push_stack(self.pc & 0xff);
+        self.pc = addr;
+      },
+
+      Opcode::RTS => {
+        let lower = self.pop_stack();
+        let higher = self.pop_stack();
+        let addr = ((higher << 8) | lower) + 1;
+        self.pc = addr;
+      },
+
       _ => {}
     }
 
