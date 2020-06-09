@@ -721,9 +721,35 @@ impl Cpu {
         }
       },
 
-      Opcode::ROL => {},
+      Opcode::ROL => {
+        let a = self.a;
+        let res = a << 1;
 
-      Opcode::ROR => {},
+        self.set_n_flag((res >> 7) & 1 == 1 << 7);
+        self.set_z_flag(res == 0);
+        self.set_c_flag((a >> 0) & 1 == 1 << 7);
+
+        if addr_mode == Addressing::Accumulator {
+          self.a = res;
+        } else {
+          machine.write(0, res);
+        }
+      },
+
+      Opcode::ROR => {
+        let a = self.a;
+        let res = a >> 1;
+
+        self.set_n_flag((res >> 7) & 1 == 1 << 7);
+        self.set_z_flag(res == 0);
+        self.set_c_flag((a >> 0) & 1 == 1 << 7);
+
+        if addr_mode == Addressing::Accumulator {
+          self.a = res;
+        } else {
+          machine.write(0, res);
+        }
+      },
 
       // branch
 
