@@ -630,7 +630,7 @@ impl Cpu {
     // http://obelisk.me.uk/6502/reference.html
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
     match opcode {
-     // calculation
+      // 数値演算, 論理演算
       Opcode::ADC => {
         let a = self.a;
         let m = self.fetch_data(addr_mode, machine);
@@ -688,7 +688,7 @@ impl Cpu {
         self.a = res;
       },
 
-      // shift or rotation
+      // bitシフト, bitローテーション
       Opcode::ASL => {
         // モード別でアドレスをFetchしてくる
         let a = self.a;
@@ -752,7 +752,7 @@ impl Cpu {
         }
       },
 
-      // branch
+      // 条件分岐
       Opcode::BCC => {
         let addr = self.fetch_operand(addr_mode);
         if self.read_c_flag() == 0 {
@@ -809,6 +809,15 @@ impl Cpu {
           self.pc = addr;
         }
       },
+
+      // bit検査
+      Opcode::BIT => {
+        let res = self.fetch_data(addr_mode);
+
+        self.set_n_flag(res && (1 << 7) == 1 << 7);
+        self.set_v_flag(res && (1 << 6) == 1 << 6);
+        self.set_z_flag(self.a & res == 0);
+      }
 
       _ => {}
     }
