@@ -863,13 +863,25 @@ impl Cpu {
 
         self.set_n_flag((res >> 7) & 1 == 1);
         self.set_z_flag(res == 0);
-        self.set_c_flag(res >= 0);
+        self.set_c_flag(self.a >= m);
       },
 
       Opcode::CPX => {
+        let m = self.fetch_data(addr_mode, machine);
+        let res = self.x - m;
+
+        self.set_n_flag((res >> 7) & 1 == 1);
+        self.set_z_flag(res == 0);
+        self.set_c_flag(self.y >= m);
       },
 
       Opcode::CPY => {
+        let m = self.fetch_data(addr_mode, machine);
+        let res = self.y - m;
+
+        self.set_n_flag((res >> 7) & 1 == 1);
+        self.set_z_flag(res == 0);
+        self.set_c_flag(self.x >= m);
       },
 
       _ => {}
