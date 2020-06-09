@@ -523,7 +523,8 @@ impl Cpu {
   }
 
   fn read_n_flag(&self) -> u8 {
-    (self.p >> 8) & 1
+    // (self.p >> 8) & 1
+    self.p & (1 << 7)
   }
 
   // フラグ操作
