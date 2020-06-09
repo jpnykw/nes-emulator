@@ -752,6 +752,62 @@ impl Cpu {
       },
 
       // branch
+      Opcode::BCC => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_c_flag() == 0 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BCS => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_c_flag() == 1 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BNE => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_z_flag() == 0 {
+          self.pc = addr;
+        }
+      },
+
+
+      Opcode::BEQ => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_z_flag() == 1 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BVC => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_v_flag() == 0 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BVS => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_v_flag() == 1 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BPL => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_n_flag() == 0 {
+          self.pc = addr;
+        }
+      },
+
+      Opcode::BMI => {
+        let addr = self.fetch_operand(addr_mode);
+        if self.read_n_flag() == 1 {
+          self.pc = addr;
+        }
+      },
 
       _ => {}
     }
