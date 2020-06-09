@@ -204,7 +204,7 @@ fn stack_and_pop() {
   let mut cpu = cpu::Cpu::new();
   let mut machine = machine::Machine::new();
 
-  assert_eq!(cpu.pop_stack(&mut machine, addr), 0); // sp がインクリメントされる
+  assert_eq!(cpu.pop_stack(&mut machine), 0); // sp がインクリメントされる
   cpu.push_stack(&mut machine, 0x7b);
-  assert_eq!(cpu.pop_stack(&mut machine, addr + 1), 0x7b); // インクリメントされた分ずらす
+  assert_eq!(cpu.pop_stack(&mut machine), 0x7b); // インクリメントされた分ずらす
 }
