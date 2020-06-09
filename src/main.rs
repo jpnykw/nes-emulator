@@ -50,10 +50,10 @@ fn main() {
   machine.set_roms(prg_rom, chr_rom);
 
   // 直接CPUを実行していく(実際はループ)
-  for i in 0 .. 100 {
-    println!("\n!-------------------- {} --------------------!", i);
-    cpu.exec(&mut machine);
-  }
+  // for i in 0 .. 100 {
+  //  println!("\n!-------------------- {} --------------------!", i);
+  //  cpu.exec(&mut machine);
+  // }
 
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(&mut machine, instruction::Interrupt::RESET);
@@ -119,8 +119,21 @@ fn main() {
     &TextureSettings::new()
   ).expect("Failed to create texture.");
 
+  let mut cycles = 0; // タイミング調整用
+  let mut time: i128 = 0;
+
   let mut events = Events::new(EventSettings::new());
   while let Some(e) = events.next(&mut window) {
+    // cpuを進める
+    // こういう事で合ってる?
+    if cycles == 0 {
+      println!("\n!-------------------- {} --------------------!", time);
+      cycles = cpu.exec(&mut machine);
+      time += 1;
+    } else {
+      cycles -= 1;
+    }
+
     if let Some(args) = e.render_args() {
       window.draw_2d(&e, |c, g, _| {
         clear([0.0, 0.0, 0.0, 1.0], g);

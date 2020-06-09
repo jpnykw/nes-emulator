@@ -903,7 +903,7 @@ impl Cpu {
 
         self.set_z_flag(res == 0);
         self.set_n_flag((res >> 7) & 1 == (1 << 7));
-      }
+      },
 
       _ => {}
     }
