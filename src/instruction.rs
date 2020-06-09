@@ -839,6 +839,23 @@ impl Cpu {
         self.pc = addr;
       },
 
+      // 割り込み処理
+      Opcode::BRK => {
+        self.interrupt(
+          &mut machine,
+          instruction::Interrupt::BRK
+        );
+      },
+
+      Opcode::RTS => {
+        let stat = self.pop_stack(machine);
+        let lower = self.pop_stack(machine) as u16;
+        let higher = self.pop_stack(machine) as u16;
+
+        self.p = stat;
+        self.pc = (higher << 8) | lower;
+      },
+
       _ => {}
     }
 
