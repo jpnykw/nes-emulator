@@ -817,7 +817,13 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == 1 << 7);
         self.set_v_flag(res & (1 << 6) == 1 << 6);
         self.set_z_flag(self.a & res == 0);
-      }
+      },
+
+      // ジャンプ命令
+      Opcode::JMP => {
+        let addr = self.fetch_operand(addr_mode);
+        self.pc = addr;
+      },
 
       _ => {}
     }
