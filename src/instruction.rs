@@ -964,7 +964,32 @@ impl Cpu {
 
       Opcode::CLV => {
         self.set_v_flag(OFF);
-      }
+      },
+
+      // ロード
+      Opcode::LDA => {
+        let m = self.fetch_data(addr_mode, machine);
+
+        self.set_n_flag(m & (1 << 7) == (1 << 7));
+        self.set_z_flag(m == 0);
+        self.a = m;
+      },
+
+      Opcode::LDX => {
+        let m = self.fetch_data(addr_mode, machine);
+
+        self.set_n_flag(m & (1 << 7) == (1 << 7));
+        self.set_z_flag(m == 0);
+        self.x = m;
+      },
+
+      Opcode::LDY => {
+        let m = self.fetch_data(addr_mode, machine);
+
+        self.set_n_flag(m & (1 << 7) == (1 << 7));
+        self.set_z_flag(m == 0);
+        self.y = m;
+      },
 
       _ => {}
     }
