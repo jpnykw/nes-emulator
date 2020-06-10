@@ -1,11 +1,3 @@
-/*
-use glutin_window::GlutinWindow;
-use opengl_graphics::{GlGraphics, OpenGL};
-use piston::event_loop::{EventSettings, Events};
-use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
-use piston::window::{WindowSettings};
-*/
-
 extern crate find_folder;
 extern crate freetype;
 extern crate piston_window;
@@ -22,7 +14,7 @@ mod machine;
 mod ppu;
 mod cpu;
 
-const DEBUG_WIDTH: u32 = 300;
+const DEBUG_WIDTH: u32 = 256; // デバッグ用
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 const SIZE: f64 = 2.0;
@@ -117,21 +109,22 @@ fn main() {
   ).expect("Failed to create texture.");
 
   let mut cycles = 0; // タイミング調整用
-  let mut time: i128 = 0;
+  let mut cpu_time: i128 = 0; // 命令の実行回数を計測
+  let start_at = SystemTime::now(); // システムの起動時間を計測
 
   let mut events = Events::new(EventSettings::new());
   while let Some(e) = events.next(&mut window) {
-    // cpuを進める
-    // こういう事で合ってる?
-    if cycles == 0 {
-      println!("\n!-------------------- {} --------------------!", time);
-      cycles = cpu.exec(&mut machine);
-      time += 1;
-    } else {
-      cycles -= 1;
-    }
-
     if let Some(args) = e.render_args() {
+      // cpuを進める
+      // こういう事で合ってる?
+      if cycles == 0 {
+        println!("\n!-------------------- {} --------------------!", cpu_time);
+        cycles = cpu.exec(&mut machine);
+        cpu_time += 1;
+      }  else {
+        cycles -= 1;
+      }
+
       window.draw_2d(&e, |c, g, d| {
         clear([0.0, 0.0, 0.0, 1.0], g);
         image(&texture, c.transform.scale(SIZE, SIZE), g);
@@ -149,9 +142,9 @@ fn main() {
             c.transform, g
           );
 
-          // デバッグ用に情報を描画する
+          // レジスタ
           let mut transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 30.0);
-          let mut text = format!("A: {:<08x} X: {:<08x} Y: {:<08x} PC: {:<08x} SP: {:<08x}", cpu.a, cpu.x, cpu.y, cpu.pc, cpu.sp);
+          let mut text = format!("A: {:<08x} X: {:<08x} Y: {:<08x}", cpu.a, cpu.x, cpu.y);
 
           text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
             &text,
@@ -161,10 +154,49 @@ fn main() {
             g
           ).unwrap();
 
-          let now = SystemTime::now();
-          text = format!("Time: {:?}", now);
-
+          // フラグ
+          text = format!("PC: {:<08x}, SP: {:<08x}", cpu.pc, cpu.sp);
           transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 60.0);
+
+          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
+            &text,
+            &mut glyphs,
+            &c.draw_state,
+            transform,
+            g
+          ).unwrap();
+
+          text = format!("Flags: {:<08b}", cpu.p);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 90.0);
+
+          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
+            &text,
+            &mut glyphs,
+            &c.draw_state,
+            transform,
+            g
+          ).unwrap();
+
+          // 命令実行回数、起動時間
+          text = format!("Executions count: {:<010}", cpu_time);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, HEIGHT as f64 * SIZE - 60.0);
+
+          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
+            &text,
+            &mut glyphs,
+            &c.draw_state,
+            transform,
+            g
+          ).unwrap();
+
+          text = format!("Startup time: {:<010}(s)",
+            match start_at.elapsed() {
+              Ok(elapsed) => elapsed.as_secs(),
+              Err(_) => panic!()
+            }
+          );
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, HEIGHT as f64 * SIZE - 30.0);
+
           text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
             &text,
             &mut glyphs,
