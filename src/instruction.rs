@@ -1042,7 +1042,7 @@ impl Cpu {
       },
 
       Opcode::TSX => {
-        let res = self.sp & ((1 << 7) - 1);
+        let res = (self.sp & ((1 << 8) - 1)) as u8;
 
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
@@ -1050,9 +1050,7 @@ impl Cpu {
       },
 
       Opcode::TXS => {
-        // println!("x: {}, sp: {}", self.x, self.sp);
-        // panic!("stop");
-        self.sp = self.x as u16;
+        self.sp = (self.x as u16) | (1 << 8);
       },
 
       // スタック
@@ -1076,7 +1074,7 @@ impl Cpu {
         self.p = self.pop_stack(machine);
       },
 
-      Opcode::NOP => {}, // Do nothing
+      Opcode::NOP => {}, // Do nothing (just like me)
 
       _ => { println!("Unknown instruction"); }
     }
