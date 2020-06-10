@@ -150,9 +150,21 @@ fn main() {
           );
 
           // デバッグ用に情報を描画する
-          let transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 30.0);
-          let text = format!("A: {:<08x} X: {:<08x} Y: {:<08x} PC: {:<08x} SP: {:<08x}", cpu.a, cpu.x, cpu.y, cpu.pc, cpu.sp);
+          let mut transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 30.0);
+          let mut text = format!("A: {:<08x} X: {:<08x} Y: {:<08x} PC: {:<08x} SP: {:<08x}", cpu.a, cpu.x, cpu.y, cpu.pc, cpu.sp);
 
+          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
+            &text,
+            &mut glyphs,
+            &c.draw_state,
+            transform,
+            g
+          ).unwrap();
+
+          let now = SystemTime::now();
+          text = format!("Time: {:?}", now);
+
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 60.0);
           text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
             &text,
             &mut glyphs,
