@@ -991,6 +991,67 @@ impl Cpu {
         self.y = m;
       },
 
+      // ストア
+      Opcode::STA => {
+        let addr = self.fetch_operand(addr_mode) as usize;
+        machine.write(addr, self.a);
+      },
+
+      Opcode::STX => {
+        let addr = self.fetch_operand(addr_mode) as usize;
+        machine.write(addr, self.x);
+      },
+
+      Opcode::STY => {
+        let addr = self.fetch_operand(addr_mode) as usize;
+        machine.write(addr, self.y);
+      },
+
+      // レジスタ間転送
+      Opcode::TAX => {
+        let res = self.a;
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.x = res;
+      },
+
+      Opcode::TXA => {
+        let res = self.x;
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.a = res;
+      },
+
+      Opcode::TAY => {
+        let res = self.a;
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.y = res;
+      },
+
+      Opcode::TYA => {
+        let res = self.y;
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.a = res;
+      },
+
+      Opcode::TSX => {
+        let res = self.sp & ((1 << 8) - 1);
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.x = res as u8;
+      },
+
+      Opcode::TXS => {
+        self.sp = ((1 << 16) - 1) | self.x as u16;
+      },
+
       _ => {}
     }
 
