@@ -889,20 +889,52 @@ impl Cpu {
         let addr = self.fetch_operand(addr_mode);
         let m = self.fetch_data(addr_mode, machine);
         let res = m + 1;
-        machine.write(addr as usize, res);
 
         self.set_z_flag(res == 0);
         self.set_n_flag((res >> 7) & 1 == (1 << 7));
+        machine.write(addr as usize, res);
       },
 
       Opcode::DEC => {
         let addr = self.fetch_operand(addr_mode);
         let m = self.fetch_data(addr_mode, machine);
         let res = m - 1;
-        machine.write(addr as usize, res);
 
         self.set_z_flag(res == 0);
-        self.set_n_flag((res >> 7) & 1 == (1 << 7));
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        machine.write(addr as usize, res);
+      },
+
+      Opcode::INX => {
+        let res = self.x + 1;
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.x = res;
+      },
+
+      Opcode::DEX => {
+        let res = self.x - 1;
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.x = res;
+      },
+
+      Opcode::INY => {
+        let res = self.y + 1;
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.y = res;
+      },
+
+      Opcode::DEY => {
+        let res = self.y - 1;
+
+        self.set_z_flag(res == 0);
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.y = res;
       },
 
       _ => {}
