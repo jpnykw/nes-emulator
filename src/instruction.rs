@@ -937,6 +937,35 @@ impl Cpu {
         self.y = res;
       },
 
+      // フラグ操作
+      Opcode::CLC => {
+        self.set_c_flag(OFF);
+      },
+
+      Opcode::SEC => {
+        self.set_c_flag(ON);
+      },
+
+      Opcode::CLI => {
+        self.set_i_flag(OFF);
+      },
+
+      Opcode::SEI => {
+        self.set_i_flag(ON);
+      },
+
+      Opcode::CLD => {
+        self.set_d_flag(OFF);
+      },
+
+      Opcode::SED => {
+        self.set_d_flag(ON);
+      },
+
+      Opcode::CLV => {
+        self.set_v_flag(OFF);
+      }
+
       _ => {}
     }
 
