@@ -1074,20 +1074,11 @@ impl Cpu {
 
       Opcode::PLP => {
         self.p = self.pop_stack(machine);
-      }
+      },
 
-/*
-PHA (Push A on stack)	A -> stack
-flags: none
-PLA (Pull A from stack)	stack -> A
-flags: N Z
-PHP (Push P on stack)	P -> stack
-flags: none
-PLP (Pull P from stack)	stack -> P
-flags: all
-*/
+      Opcode::NOP => {}, // Do nothing
 
-      _ => {}
+      _ => { println!("Unknown instruction"); }
     }
 
     println!(
