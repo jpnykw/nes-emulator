@@ -11,6 +11,7 @@ extern crate freetype;
 extern crate piston_window;
 extern crate image;
 
+use std::time::{SystemTime};
 use piston_window::*;
 use image::*;
 use std::env;
@@ -21,7 +22,7 @@ mod machine;
 mod ppu;
 mod cpu;
 
-const DEBUG_WIDTH: u32 = 200;
+const DEBUG_WIDTH: u32 = 300;
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 const SIZE: f64 = 2.0;
@@ -38,8 +39,9 @@ fn main() {
   let mut ppu = ppu::Ppu::new();
 
   // カセット読み込み
-  let path = "./roms/helloworld.nes".to_string();
-  let result = system::load_cassette(path, cui_debug);
+  let path = "./roms/helloworld.nes"; // it works!
+  // let path = "./roms/SHOOT.nes" // it works!
+  let result = system::load_cassette(path.to_string(), cui_debug);
 
   let (prg_rom, chr_rom) = match result {
     Ok(rom) => rom,
@@ -49,19 +51,13 @@ fn main() {
   // machineにROMをセット
   machine.set_roms(prg_rom, chr_rom);
 
-  // 直接CPUを実行していく(実際はループ)
-  // for i in 0 .. 100 {
-  //  println!("\n!-------------------- {} --------------------!", i);
-  //  cpu.exec(&mut machine);
-  // }
-
   // 電源が入るとRESETの割込処理が走る
   cpu.interrupt(&mut machine, instruction::Interrupt::RESET);
 
   // GUI
   let opengl = OpenGL::V3_2;
   let mut window: PistonWindow = WindowSettings::new(
-    "NES Emulator",
+    format!("NES Emulator ({})", path),
     (WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH * SIZE as u32 } else { 0 },
     HEIGHT * SIZE as u32)
   )
@@ -72,9 +68,10 @@ fn main() {
 
   // フォントの読み込み
   let assets = find_folder::Search::ParentsThenKids(3, 3).for_folder("assets").unwrap();
-  let ref font = assets.join("Geomanist-Regular.otf");
-  let factory = window.factory.clone();
-  // let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap(); // 謎多き人物
+  let ref font = assets.join("Arimo for Powerline.ttf");
+
+  let factory = window.create_texture_context();
+  let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap(); // thanks, @megumish
 
   let mut screen = ImageBuffer::new(
     WIDTH * SIZE as u32,
@@ -135,7 +132,7 @@ fn main() {
     }
 
     if let Some(args) = e.render_args() {
-      window.draw_2d(&e, |c, g, _| {
+      window.draw_2d(&e, |c, g, d| {
         clear([0.0, 0.0, 0.0, 1.0], g);
         image(&texture, c.transform.scale(SIZE, SIZE), g);
 
@@ -153,16 +150,18 @@ fn main() {
           );
 
           // デバッグ用に情報を描画する
-          /*
-          let transform = c.transform.trans(100.0, 100.0);
-          text::Text::new_color([0.0, 0.0, 0.0, 1.0], 32).draw(
-            "unchi",
+          let transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 30.0);
+          let text = format!("A: {:<08x} X: {:<08x} Y: {:<08x} PC: {:<08x} SP: {:<08x}", cpu.a, cpu.x, cpu.y, cpu.pc, cpu.sp);
+
+          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
+            &text,
             &mut glyphs,
             &c.draw_state,
             transform,
             g
-          );
-          */
+          ).unwrap();
+
+          glyphs.factory.encoder.flush(d);
         }
       });
     }
