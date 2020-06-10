@@ -826,6 +826,7 @@ impl Cpu {
 
       Opcode::JSR => {
         let addr = self.fetch_operand(addr_mode);
+        // println!("{}, {}", addr, self.sp);
         self.push_stack(machine, (self.pc >> 8) as u8);
         self.push_stack(machine, (self.pc & 0xff) as u8);
         self.pc = addr;
@@ -1041,7 +1042,7 @@ impl Cpu {
       },
 
       Opcode::TSX => {
-        let res = self.sp & ((1 << 8) - 1);
+        let res = self.sp & ((1 << 7) - 1);
 
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
@@ -1049,8 +1050,42 @@ impl Cpu {
       },
 
       Opcode::TXS => {
-        self.sp = ((1 << 16) - 1) | self.x as u16;
+        // println!("x: {}, sp: {}", self.x, self.sp);
+        // panic!("stop");
+        self.sp = self.x as u16;
       },
+
+      // スタック
+      Opcode::PHA => {
+        self.push_stack(machine, self.a);
+      },
+
+      Opcode::PLA => {
+        let res = self.pop_stack(machine);
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.a = res;
+      },
+
+      Opcode::PHP => {
+        self.push_stack(machine, self.p);
+      },
+
+      Opcode::PLP => {
+        self.p = self.pop_stack(machine);
+      }
+
+/*
+PHA (Push A on stack)	A -> stack
+flags: none
+PLA (Pull A from stack)	stack -> A
+flags: N Z
+PHP (Push P on stack)	P -> stack
+flags: none
+PLP (Pull P from stack)	stack -> P
+flags: all
+*/
 
       _ => {}
     }
