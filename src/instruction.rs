@@ -585,7 +585,7 @@ impl Cpu {
     };
   }
 
-  fn fetch_data(
+  fn fetch_data (
     self,
     addr_mode: Addressing,
     machine: &mut machine::Machine
@@ -598,24 +598,46 @@ impl Cpu {
     }
   }
 
-  fn fetch_operand(
+  fn fetch_addr_8 (
+    mut self,
+    machine: &mut machine::Machine
+  ) -> u8 {
+    let val = machine.read(self.pc as usize);
+    self.pc += 1;
+    val
+  }
+
+  fn fetch_addr_16 (
     self,
-    addr_mode: Addressing
+    machine: &mut machine::Machine
+  ) -> u16 {
+    let low = self.fetch_addr_8(machine) as u16;
+    let high = self.fetch_addr_8(machine) as u16;
+    (high << 8) | low
+  }
+
+  // アドレスを返す
+  fn fetch_operand (
+    self,
+    addr_mode: Addressing,
+    machine: &mut machine::Machine
   ) -> u16 {
     match addr_mode {
-      _ => 0
+      Addressing::Immediate => self.fetch_addr_8(machine) as u16,
+      Addressing::Absolute => self.fetch_addr_16(machine),
+      _ => 0 // Implied, Accumulator
     }
   }
 
   // 実行したいニャンね
-  pub fn exec(&mut self, machine: &mut machine::Machine) -> u8 {
-    // pcからfetchするらしい
+  pub fn exec (
+    &mut self,
+    machine: &mut machine::Machine
+  ) -> u8 {
     let code = machine.prg_rom[self.pc as usize];
-    // let inst = self.convert(code);
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
     self.pc += 1;
 
-    // println!("0x{:>04x} -> ({:?}, {:?}, {:?})", code, cycle, opcode, addr_mode);
     println!(
       "Exec:
   \x1b[38;2;252;200;0mCycles: {}\x1b[m,
@@ -753,21 +775,21 @@ impl Cpu {
 
       // 条件分岐
       Opcode::BCC => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_c_flag() == 0 {
           self.pc = addr;
         }
       },
 
       Opcode::BCS => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_c_flag() == 1 {
           self.pc = addr;
         }
       },
 
       Opcode::BNE => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_z_flag() == 0 {
           self.pc = addr;
         }
@@ -775,35 +797,35 @@ impl Cpu {
 
 
       Opcode::BEQ => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_z_flag() == 1 {
           self.pc = addr;
         }
       },
 
       Opcode::BVC => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_v_flag() == 0 {
           self.pc = addr;
         }
       },
 
       Opcode::BVS => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_v_flag() == 1 {
           self.pc = addr;
         }
       },
 
       Opcode::BPL => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_n_flag() == 0 {
           self.pc = addr;
         }
       },
 
       Opcode::BMI => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         if self.read_n_flag() == 1 {
           self.pc = addr;
         }
@@ -820,12 +842,12 @@ impl Cpu {
 
       // ジャンプ命令
       Opcode::JMP => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         self.pc = addr;
       },
 
       Opcode::JSR => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         // println!("{}, {}", addr, self.sp);
         self.push_stack(machine, (self.pc >> 8) as u8);
         self.push_stack(machine, (self.pc & 0xff) as u8);
@@ -887,7 +909,7 @@ impl Cpu {
       // ワンアゲ, ワンサゲ
       // https://twitter.com/yuki384love/status/1270365593800081408
       Opcode::INC => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         let m = self.fetch_data(addr_mode, machine);
         let res = m + 1;
 
@@ -897,7 +919,7 @@ impl Cpu {
       },
 
       Opcode::DEC => {
-        let addr = self.fetch_operand(addr_mode);
+        let addr = self.fetch_operand(addr_mode, machine);
         let m = self.fetch_data(addr_mode, machine);
         let res = m - 1;
 
@@ -994,17 +1016,17 @@ impl Cpu {
 
       // ストア
       Opcode::STA => {
-        let addr = self.fetch_operand(addr_mode) as usize;
+        let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.a);
       },
 
       Opcode::STX => {
-        let addr = self.fetch_operand(addr_mode) as usize;
+        let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.x);
       },
 
       Opcode::STY => {
-        let addr = self.fetch_operand(addr_mode) as usize;
+        let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.y);
       },
 

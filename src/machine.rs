@@ -26,7 +26,7 @@ impl Machine {
     }
   }
 
-  pub fn set_roms(
+  pub fn set_roms (
     &mut self,
     prg_rom: [u8; PRG_ROM_SIZE],
     chr_rom: [u8; CHR_ROM_SIZE]
@@ -35,16 +35,38 @@ impl Machine {
     self.chr_rom = chr_rom;
   }
 
-  pub fn store(&mut self, addr: usize, val: u8) {
+  pub fn store (
+    &mut self,
+    addr: usize,
+    val: u8
+  ) {
     self.wram[addr] = val;
   }
 
-  pub fn fetch(self, addr: usize) -> u8 {
+  pub fn fetch (
+    self, addr: usize
+  ) -> u8 {
     self.wram[addr]
   }
 
-  pub fn write(&mut self, addr: usize, val: u8) {
+  pub fn write(
+    &mut self,
+    addr: usize,
+    val: u8
+  ) {
     // TODO: PPUのミラーなどを考慮する
     self.wram[addr] = val;
+  }
+
+  pub fn read(
+    &mut self,
+    addr: usize
+  ) -> u8 {
+    if addr < 0x2000 {
+      // ppu registers
+      0
+    } else {
+      self.prg_rom[addr]
+    }
   }
 }
