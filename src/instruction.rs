@@ -585,7 +585,7 @@ impl Cpu {
     };
   }
 
-  fn fetch_addr_8bit (
+  fn fetch_data_8bit (
     mut self,
     machine: &mut machine::Machine
   ) -> u8 {
@@ -594,12 +594,12 @@ impl Cpu {
     val
   }
 
-  fn fetch_addr_16bit (
+  fn fetch_data_16bit (
     self,
     machine: &mut machine::Machine
   ) -> u16 {
-    let low = self.fetch_addr_8bit(machine) as u16;
-    let high = self.fetch_addr_8bit(machine) as u16;
+    let low = self.fetch_data_8bit(machine) as u16;
+    let high = self.fetch_data_8bit(machine) as u16;
     (high << 8) | low
   }
 
@@ -611,11 +611,13 @@ impl Cpu {
     machine: &mut machine::Machine
   ) -> u16 {
     match addr_mode {
-      Addressing::Immediate => self.fetch_addr_8bit(machine) as u16,
-      Addressing::Absolute => self.fetch_addr_16bit(machine),
-      Addressing::Zeropage => self.fetch_addr_8bit(machine) as u16,
-      Addressing::ZeropageX => (self.fetch_addr_8bit(machine) + self.x) as u16,
-      Addressing::ZeropageY => (self.fetch_addr_8bit(machine) + self.y) as u16,
+      Addressing::Immediate => self.fetch_data_8bit(machine) as u16,
+      Addressing::Zeropage => self.fetch_data_8bit(machine) as u16,
+      Addressing::ZeropageX => (self.fetch_data_8bit(machine) + self.x) as u16,
+      Addressing::ZeropageY => (self.fetch_data_8bit(machine) + self.y) as u16,
+      Addressing::Absolute => self.fetch_data_16bit(machine),
+      Addressing::AbsoluteX => self.fetch_data_16bit(machine) + self.x as u16,
+      Addressing::AbsoluteY => self.fetch_data_16bit(machine) + self.y as u16,
       _ => 0 // Implied, Accumulator
     }
   }
