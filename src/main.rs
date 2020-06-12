@@ -14,7 +14,9 @@ mod machine;
 mod ppu;
 mod cpu;
 
-const DEBUG_WIDTH: u32 = 256; // デバッグ用
+const DEBUG_WIDTH: u32 = 250;
+const DEBUG_HEIGHT: u32 = 100;
+
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
 const SIZE: f64 = 2.0;
@@ -32,7 +34,7 @@ fn main() {
 
   // カセット読み込み
   let path = "./roms/helloworld.nes"; // it works!
-  // let path = "./roms/SHOOT.nes" // it works!
+  // let path = "./roms/SHOOT.nes"; // it works!
   let result = system::load_cassette(path.to_string(), cui_debug);
 
   let (prg_rom, chr_rom) = match result {
@@ -48,11 +50,9 @@ fn main() {
 
   // GUI
   let opengl = OpenGL::V3_2;
-  let mut window: PistonWindow = WindowSettings::new(
-    format!("NES Emulator ({})", path),
-    (WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH * SIZE as u32 } else { 0 },
-    HEIGHT * SIZE as u32)
-  )
+  let width = WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH * SIZE as u32 } else { 0 };
+  let height = HEIGHT * SIZE as u32 + if gui_debug { DEBUG_HEIGHT * SIZE as u32 } else { 0 };
+  let mut window: PistonWindow = WindowSettings::new(format!("NES Emulator ({})", path), (width, height))
   .graphics_api(opengl)
   .exit_on_esc(true)
   .build()
@@ -137,7 +137,7 @@ fn main() {
               WIDTH as f64 * SIZE + 1.0,
               0.0,
               DEBUG_WIDTH as f64 * SIZE,
-              HEIGHT as f64 * SIZE,
+              height as f64,
             ], // x, y, w, h
             c.transform, g
           );
@@ -179,7 +179,7 @@ fn main() {
 
           // 命令実行回数、起動時間
           text = format!("Executions count: {:<010}", cpu_time);
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, HEIGHT as f64 * SIZE - 60.0);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, height as f64 - 60.0);
 
           text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
             &text,
@@ -195,7 +195,7 @@ fn main() {
               Err(_) => panic!()
             }
           );
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, HEIGHT as f64 * SIZE - 30.0);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, height as f64 - 30.0);
 
           text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
             &text,

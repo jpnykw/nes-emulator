@@ -585,20 +585,7 @@ impl Cpu {
     };
   }
 
-  fn fetch_data (
-    self,
-    addr_mode: Addressing,
-    machine: &mut machine::Machine
-  ) -> u8 {
-    // TODO: 正しいアドレス指定を実装する
-    // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
-    match addr_mode {
-      Addressing::Accumulator => self.a,
-      _ => 0
-    }
-  }
-
-  fn fetch_addr_8 (
+  fn fetch_addr_8bit (
     mut self,
     machine: &mut machine::Machine
   ) -> u8 {
@@ -607,25 +594,44 @@ impl Cpu {
     val
   }
 
-  fn fetch_addr_16 (
+  fn fetch_addr_16bit (
     self,
     machine: &mut machine::Machine
   ) -> u16 {
-    let low = self.fetch_addr_8(machine) as u16;
-    let high = self.fetch_addr_8(machine) as u16;
+    let low = self.fetch_addr_8bit(machine) as u16;
+    let high = self.fetch_addr_8bit(machine) as u16;
     (high << 8) | low
   }
 
   // アドレスを返す
+  // https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
   fn fetch_operand (
     self,
     addr_mode: Addressing,
     machine: &mut machine::Machine
   ) -> u16 {
     match addr_mode {
-      Addressing::Immediate => self.fetch_addr_8(machine) as u16,
-      Addressing::Absolute => self.fetch_addr_16(machine),
+      Addressing::Immediate => self.fetch_addr_8bit(machine) as u16,
+      Addressing::Absolute => self.fetch_addr_16bit(machine),
+      Addressing::Zeropage => self.fetch_addr_8bit(machine) as u16,
+      Addressing::ZeropageX => (self.fetch_addr_8bit(machine) + self.x) as u16,
+      Addressing::ZeropageY => (self.fetch_addr_8bit(machine) + self.y) as u16,
       _ => 0 // Implied, Accumulator
+    }
+  }
+
+  fn fetch_data (
+    self,
+    addr_mode: Addressing,
+    machine: &mut machine::Machine
+  ) -> u8 {
+    // TODO: 正しいアドレス指定を実装する
+    // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
+    match addr_mode {
+      Addressing::Implied => 0,
+      Addressing::Accumulator => self.a,
+      Addressing::Immediate => self.fetch_operand(addr_mode, machine) as u8,
+      _ => 0
     }
   }
 
