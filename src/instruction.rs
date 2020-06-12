@@ -128,7 +128,10 @@ pub struct Instruction(u8, Opcode, Addressing); // 頭はCycle数
 /// ```
 impl Cpu {
   // TODO: ROMのマシンコードを命令に変換する
-  pub fn convert(self, code: u8) -> Instruction {
+  pub fn convert(
+    self,
+    code: u8
+  ) -> Instruction {
     match code {
       /// 転送命令
       // LDA
@@ -453,7 +456,11 @@ impl Cpu {
     }
   }
 
-  pub fn interrupt(&mut self, machine: &mut machine::Machine, inst: Interrupt) {
+  pub fn interrupt(
+    &mut self,
+    machine: &mut machine::Machine,
+    inst: Interrupt
+  ) {
     match inst {
       Interrupt::RESET => {
         self.set_i_flag(ON);
@@ -498,36 +505,53 @@ impl Cpu {
   }
 
   // フラグ(n-bit目)の読み出し
-  fn read_c_flag(&self) -> u8 {
+  fn read_c_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 0)
   }
 
-  fn read_z_flag(&self) -> u8 {
+  fn read_z_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 1)
   }
 
-  fn read_i_flag(&self) -> u8 {
+  fn read_i_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 2)
   }
 
-  fn read_d_flag(&self) -> u8 {
+  fn read_d_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 3)
   }
 
-  fn read_b_flag(&self) -> u8 {
+  fn read_b_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 4)
   }
 
-  fn read_v_flag(&self) -> u8 {
+  fn read_v_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 6)
   }
 
-  fn read_n_flag(&self) -> u8 {
+  fn read_n_flag(
+    &self
+  ) -> u8 {
     self.p & (1 << 7)
   }
 
   // フラグ操作
-  fn set_c_flag(&mut self, stat: bool) {
+  fn set_c_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x01  // 1 << 0
     } else {
@@ -535,7 +559,10 @@ impl Cpu {
     };
   }
 
-  fn set_z_flag(&mut self, stat: bool) {
+  fn set_z_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x02  // 1 << 1
     } else {
@@ -543,7 +570,10 @@ impl Cpu {
     };
   }
 
-  fn set_i_flag(&mut self, stat: bool) {
+  fn set_i_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x04  // 1 << 2
     } else {
@@ -551,7 +581,10 @@ impl Cpu {
     };
   }
 
-  fn set_d_flag(&mut self, stat: bool) {
+  fn set_d_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x08  // 1 << 3
     } else {
@@ -559,7 +592,10 @@ impl Cpu {
     };
   }
 
-  fn set_b_flag(&mut self, stat: bool) {
+  fn set_b_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x10  // 1 << 4
     } else {
@@ -569,7 +605,10 @@ impl Cpu {
 
   // 1 << 5 は常に1
 
-  fn set_v_flag(&mut self, stat: bool) {
+  fn set_v_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x40  // 1 << 6
     } else {
@@ -577,7 +616,10 @@ impl Cpu {
     };
   }
 
-  fn set_n_flag(&mut self, stat: bool) {
+  fn set_n_flag(
+    &mut self,
+    stat: bool
+  ) {
     self.p = if stat {
       self.p | 0x80  // 1 << 7
     } else {
@@ -585,7 +627,7 @@ impl Cpu {
     };
   }
 
-  fn fetch_data_8bit (
+  fn fetch_data_8bit(
     mut self,
     machine: &mut machine::Machine
   ) -> u8 {
@@ -594,7 +636,7 @@ impl Cpu {
     val
   }
 
-  fn fetch_data_16bit (
+  fn fetch_data_16bit(
     self,
     machine: &mut machine::Machine
   ) -> u16 {
@@ -605,7 +647,7 @@ impl Cpu {
 
   // アドレスを返す
   // https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
-  fn fetch_operand (
+  fn fetch_operand(
     self,
     addr_mode: Addressing,
     machine: &mut machine::Machine
@@ -623,7 +665,7 @@ impl Cpu {
     }
   }
 
-  fn fetch_data (
+  fn fetch_data(
     self,
     addr_mode: Addressing,
     machine: &mut machine::Machine
@@ -645,7 +687,7 @@ impl Cpu {
   }
 
   // 実行したいニャンね
-  pub fn exec (
+  pub fn exec(
     &mut self,
     machine: &mut machine::Machine
   ) -> u8 {

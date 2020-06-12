@@ -26,7 +26,7 @@ impl Machine {
     }
   }
 
-  pub fn set_roms (
+  pub fn set_roms(
     &mut self,
     prg_rom: [u8; PRG_ROM_SIZE],
     chr_rom: [u8; CHR_ROM_SIZE]
@@ -35,7 +35,7 @@ impl Machine {
     self.chr_rom = chr_rom;
   }
 
-  pub fn store (
+  pub fn store(
     &mut self,
     addr: usize,
     val: u8
@@ -43,13 +43,13 @@ impl Machine {
     self.wram[addr] = val;
   }
 
-  pub fn fetch (
+  pub fn fetch(
     self, addr: usize
   ) -> u8 {
     self.wram[addr]
   }
 
-  pub fn write (
+  pub fn write(
     &mut self,
     addr: usize,
     val: u8
@@ -58,7 +58,7 @@ impl Machine {
     self.wram[addr] = val;
   }
 
-  pub fn read (
+  pub fn read(
     &mut self,
     addr: usize
   ) -> u8 {
