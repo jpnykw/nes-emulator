@@ -15,7 +15,7 @@ mod ppu;
 mod cpu;
 
 const DEBUG_WIDTH: u32 = 250;
-const DEBUG_HEIGHT: u32 = 100;
+const DEBUG_HEIGHT: u32 = 0; // 100;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
@@ -70,33 +70,6 @@ fn main() {
     HEIGHT * SIZE as u32
   );
 
-  // 直接描画してみる
-  for i in 0 .. (32 * 10) {
-    let base = 16 * (0x21 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
-    let pattern_low = &chr_rom[base .. base + 0x8]; // 0 ~ 7
-    let pattern_high = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
-
-    for y in 0 .. 8 {
-      for x in 0 .. 8 {
-        fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
-        let dx = ((7 - x) + (i + 1) % 32 * 8) as u32;
-        let dy = y as u32 + ((i + 1) / 32) as u32 * 8;
-
-        screen.put_pixel(
-          dx, dy,
-          if is_put(pattern_low[y], x as u8) { Rgba([255, 255, 255, 50]) }
-          else { Rgba([0; 4]) }
-        );
-
-        screen.put_pixel(
-          dx, dy,
-          if is_put(pattern_high[y], x as u8) { Rgba([255, 255, 255, 50]) }
-          else { Rgba([0; 4]) }
-        );
-      }
-    }
-  }
-
   let mut texture_context = TextureContext {
     factory: window.factory.clone(),
     encoder: window.factory.create_command_buffer().into(),
@@ -125,8 +98,41 @@ fn main() {
         cycles -= 1;
       }
 
+      // 直接描画してみる
+      for i in 0 .. (32 * 10) {
+        let base = 16 * (0x21 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
+        let pattern_low = &chr_rom[base .. base + 0x8]; // 0 ~ 7
+        let pattern_high = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
+
+        for y in 0 .. 8 {
+          for x in 0 .. 8 {
+            fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
+            let dx = ((7 - x) + (i + 1) % 32 * 8) as u32;
+            let dy = y as u32 + ((i + 1) / 32) as u32 * 8;
+
+            screen.put_pixel(
+              dx, dy,
+              if is_put(pattern_low[y], x as u8) { Rgba([255, 255, 255, 127]) }
+              else { Rgba([0; 4]) }
+            );
+
+            screen.put_pixel(
+              dx, dy,
+              if is_put(pattern_high[y], x as u8) { Rgba([255, 255, 255, 127]) }
+              else { Rgba([0; 4]) }
+            );
+          }
+        }
+      }
+
+      texture.update(
+        &mut texture_context,
+        &screen
+      ).unwrap();
+
       window.draw_2d(&e, |c, g, d| {
         clear([0.0, 0.0, 0.0, 1.0], g);
+        texture_context.encoder.flush(d);
         image(&texture, c.transform.scale(SIZE, SIZE), g);
 
         // デバッグ用の背景を右側に描画する
