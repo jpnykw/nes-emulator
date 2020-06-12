@@ -49,7 +49,7 @@ impl Machine {
     self.wram[addr]
   }
 
-  pub fn write(
+  pub fn write (
     &mut self,
     addr: usize,
     val: u8
@@ -58,7 +58,7 @@ impl Machine {
     self.wram[addr] = val;
   }
 
-  pub fn read(
+  pub fn read (
     &mut self,
     addr: usize
   ) -> u8 {

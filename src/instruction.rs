@@ -630,8 +630,14 @@ impl Cpu {
     match addr_mode {
       Addressing::Implied => 0,
       Addressing::Accumulator => self.a,
-      Addressing::Immediate => self.fetch_operand(addr_mode, machine) as u8,
-      _ => 0
+      Addressing::Immediate => {
+        let data = self.fetch_operand(addr_mode, machine);
+        data as u8
+      },
+      _ => {
+        let data = self.fetch_operand(addr_mode, machine);
+        machine.read(data as usize)
+      }
     }
   }
 
