@@ -618,6 +618,7 @@ impl Cpu {
       Addressing::Absolute => self.fetch_data_16bit(machine),
       Addressing::AbsoluteX => self.fetch_data_16bit(machine) + self.x as u16,
       Addressing::AbsoluteY => self.fetch_data_16bit(machine) + self.y as u16,
+      Addressing::Relative => (self.fetch_data_8bit(machine) + self.pc) as u16,
       _ => 0 // Implied, Accumulator
     }
   }
