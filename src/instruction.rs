@@ -1194,7 +1194,24 @@ impl Cpu {
         self.p = self.pop_stack(machine);
       },
 
-      Opcode::NOP => {}, // Do nothing (just like me)
+      // Unofficial opecodes
+      Opcode::ISC => {
+        let addr = self.fetch_operand(addr_mode, machine);
+        let val = self.fetch_data(addr_mode, machine) + 1;
+        machine.write(addr as usize, val);
+
+        let (data, over_1) = self.a.overflowing_sub(val);
+        let (res, over_2) = data.overflowing_sub(if self.read_c_flag() == 1 { 0 } else { 1 });
+
+        self.set_n_flag(res & (1 << 7) == (1 << 7));
+        self.set_v_flag((self.a ^ val) & (1 << 7) == (1 << 7) && (self.a ^ res) & (1 << 7) == (1 << 7));
+        self.set_z_flag(res == 0);
+        self.set_c_flag(!(over_1 || over_2));
+        self.a = res;
+      },
+
+      // Do nothing (just like me)
+      Opcode::NOP => {},
 
       _ => { println!("Unknown instruction"); }
     }
@@ -1202,7 +1219,7 @@ impl Cpu {
     println!(
       "Stat:
   \x1b[38;2;252;200;0mAccumulator: {}\x1b[m,
-  \x1b[38;2;20;210;240mFlag: {:b}\x1b[m",
+  \x1b[38;2;20;210;240mFlag: {:<08b}\x1b[m",
       self.a,
       self.p
     );
