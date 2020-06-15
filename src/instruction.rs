@@ -627,7 +627,7 @@ impl Cpu {
     };
   }
 
-  fn fetch_data_8bit(
+  fn fetch_8bit(
     mut self,
     machine: &mut machine::Machine
   ) -> u8 {
@@ -636,12 +636,12 @@ impl Cpu {
     val
   }
 
-  fn fetch_data_16bit(
+  fn fetch_16bit(
     self,
     machine: &mut machine::Machine
   ) -> u16 {
-    let low = self.fetch_data_8bit(machine) as u16;
-    let high = self.fetch_data_8bit(machine) as u16;
+    let low = self.fetch_8bit(machine) as u16;
+    let high = self.fetch_8bit(machine) as u16;
     (high << 8) | low
   }
 
@@ -653,14 +653,24 @@ impl Cpu {
     machine: &mut machine::Machine
   ) -> u16 {
     match addr_mode {
-      Addressing::Immediate => self.fetch_data_8bit(machine) as u16,
-      Addressing::Zeropage => self.fetch_data_8bit(machine) as u16,
-      Addressing::ZeropageX => (self.fetch_data_8bit(machine) + self.x) as u16,
-      Addressing::ZeropageY => (self.fetch_data_8bit(machine) + self.y) as u16,
-      Addressing::Absolute => self.fetch_data_16bit(machine),
-      Addressing::AbsoluteX => self.fetch_data_16bit(machine) + self.x as u16,
-      Addressing::AbsoluteY => self.fetch_data_16bit(machine) + self.y as u16,
-      Addressing::Relative => self.fetch_data_8bit(machine) as u16 + self.pc,
+      Addressing::Immediate => self.fetch_8bit(machine) as u16,
+      Addressing::Zeropage => self.fetch_8bit(machine) as u16,
+      Addressing::ZeropageX => (self.fetch_8bit(machine) + self.x) as u16,
+      Addressing::ZeropageY => (self.fetch_8bit(machine) + self.y) as u16,
+      Addressing::Absolute => self.fetch_16bit(machine),
+      Addressing::AbsoluteX => self.fetch_16bit(machine) + self.x as u16,
+      Addressing::AbsoluteY => self.fetch_16bit(machine) + self.y as u16,
+      Addressing::Relative => self.fetch_8bit(machine) as u16 + self.pc,
+      Addressing::Indirect => {
+        let addr_low = self.fetch_8bit(machine) as u16;
+        let addr_high = self.fetch_8bit(machine) as u16;
+
+        let addr = ((addr_high << 8) | addr_low) as usize;
+        let data_low = machine.read(addr) as u16;
+        let data_high = machine.read(addr + 1) as u16;
+
+        ((data_high << 8) | data_low) as u16
+      }
       _ => 0 // Implied, Accumulator
     }
   }
@@ -691,7 +701,6 @@ impl Cpu {
     &mut self,
     machine: &mut machine::Machine
   ) -> u8 {
-    println!("pc -> {}", self.pc);
     let code = machine.prg_rom[self.pc as usize];
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
     self.pc += 1;

@@ -40,8 +40,11 @@ impl Machine {
     addr: usize,
     val: u8
   ) {
-    // TODO: PPUのミラーなどを考慮する
-    self.wram[addr] = val;
+    if addr < 0x2000 {
+      self.wram[addr] = val;
+    } else {
+      println!("ppu reg -> {}", (addr - 0x2000) % 8);
+    }
   }
 
   pub fn read(
