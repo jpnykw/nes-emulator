@@ -700,6 +700,7 @@ impl Cpu {
     }
   }
 
+  // データを返す
   fn fetch_data(
     self,
     addr_mode: Addressing,
@@ -709,11 +710,14 @@ impl Cpu {
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
     match addr_mode {
       Addressing::Implied => 0,
+
       Addressing::Accumulator => self.a,
+
       Addressing::Immediate => {
         let data = self.fetch_operand(addr_mode, machine);
         data as u8
       },
+
       _ => {
         let data = self.fetch_operand(addr_mode, machine);
         machine.read(data as usize)
@@ -814,9 +818,8 @@ impl Cpu {
         if addr_mode == Addressing::Accumulator {
           self.a = res;
         } else {
-          // TODO: wramを書き換える
-          // TODO: Fetchしたアドレスに置き換える
-          machine.write(0, res);
+          let addr = self.fetch_operand(addr_mode, machine) as usize;
+          machine.write(addr, res);
         }
       },
 
@@ -831,7 +834,8 @@ impl Cpu {
         if addr_mode == Addressing::Accumulator {
           self.a = res;
         } else {
-          machine.write(0, res);
+          let addr = self.fetch_operand(addr_mode, machine) as usize;
+          machine.write(addr, res);
         }
       },
 
@@ -846,7 +850,8 @@ impl Cpu {
         if addr_mode == Addressing::Accumulator {
           self.a = res;
         } else {
-          machine.write(0, res);
+          let addr = self.fetch_operand(addr_mode, machine) as usize;
+          machine.write(addr, res);
         }
       },
 
@@ -861,7 +866,8 @@ impl Cpu {
         if addr_mode == Addressing::Accumulator {
           self.a = res;
         } else {
-          machine.write(0, res);
+          let addr = self.fetch_operand(addr_mode, machine) as usize;
+          machine.write(addr, res);
         }
       },
 
