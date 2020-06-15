@@ -14,12 +14,12 @@ mod machine;
 mod ppu;
 mod cpu;
 
-const DEBUG_WIDTH: u32 = 276;
+const DEBUG_WIDTH: u32 = 600;
 const DEBUG_HEIGHT: u32 = 0; // 100;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
-const SIZE: f64 = 2.0;
+const SIZE: f64 = 4.0;
 
 fn main() {
   // デバッグモード判定用
@@ -33,13 +33,13 @@ fn main() {
   let mut ppu = ppu::Ppu::new();
 
   // カセット読み込み
-  let path = "./roms/helloworld.nes"; // it works!
+  let path = "./roms/sample1.nes"; // it works!
   // let path = "./roms/SHOOT.nes"; // it works!
   let result = system::load_cassette(path.to_string(), cui_debug);
 
   let (prg_rom, chr_rom) = match result {
     Ok(rom) => rom,
-    Err(_) => panic!("ROM切り離せなかった")
+    Err(_) => panic!("Failed to get PRG-ROM or CHR-ROM")
   };
 
   // machineにROMをセット
@@ -50,8 +50,8 @@ fn main() {
 
   // GUI
   let opengl = OpenGL::V3_2;
-  let width = WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH * SIZE as u32 } else { 0 };
-  let height = HEIGHT * SIZE as u32 + if gui_debug { DEBUG_HEIGHT * SIZE as u32 } else { 0 };
+  let width = WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH } else { 0 };
+  let height = HEIGHT * SIZE as u32 + if gui_debug { DEBUG_HEIGHT } else { 0 };
   let mut window: PistonWindow = WindowSettings::new(format!("NES Emulator ({})", path), (width, height))
   .graphics_api(opengl)
   .exit_on_esc(true)
@@ -65,8 +65,9 @@ fn main() {
   let factory = window.create_texture_context();
   let mut glyphs = Glyphs::new(font, factory, TextureSettings::new()).unwrap(); // thanks, @megumish
 
+  // NESの画面
   let mut screen = ImageBuffer::new(
-    WIDTH * SIZE as u32 + if gui_debug { DEBUG_WIDTH } else { 0 },
+    WIDTH * SIZE as u32,
     HEIGHT * SIZE as u32
   );
 
@@ -80,6 +81,24 @@ fn main() {
     &screen,
     &TextureSettings::new()
   ).expect("Failed to create texture.");
+
+  // デバッグ側にCHR-ROMを書き出す画面
+  let mut debug_screen = ImageBuffer::new(
+    WIDTH * SIZE as u32 + DEBUG_WIDTH,
+    HEIGHT * SIZE as u32
+  );
+
+  let mut debug_texture_context = TextureContext {
+    factory: window.factory.clone(),
+    encoder: window.factory.create_command_buffer().into(),
+  };
+
+  let mut debug_texture = Texture::from_image(
+    &mut debug_texture_context,
+    &debug_screen,
+    &TextureSettings::new()
+  ).expect("Failed to create texture.");
+
 
   let mut cycles = 0; // タイミング調整用
   let mut cpu_time: i128 = 0; // 命令の実行回数を計測
@@ -98,11 +117,19 @@ fn main() {
         cycles -= 1;
       }
 
+      // PPUでアレコレしてNESの画面を更新
+      texture.update(
+        &mut texture_context,
+        &screen
+      ).unwrap();
+
       window.draw_2d(&e, |c, g, d| {
         clear([0.0, 0.0, 0.0, 1.0], g);
+        texture_context.encoder.flush(d);
+        image(&texture, c.transform.scale(SIZE, SIZE), g);
 
-        // デバッグ用の背景を右側に描画する
         if gui_debug {
+          // デバッグ用の背景を右側に描画する
           rectangle(
             [0.0, 0.1, 0.2, 1.0],
             [
@@ -114,105 +141,86 @@ fn main() {
             c.transform, g
           );
 
-          // レジスタ
-          let mut transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 30.0);
-          let mut text = format!("A: {:<08x} X: {:<08x} Y: {:<08x}", cpu.a, cpu.x, cpu.y);
+          // フラグの状態
+          let mut text = "Flags".to_string();
+          let mut transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 210.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
-            &text,
-            &mut glyphs,
-            &c.draw_state,
-            transform,
-            g
-          ).unwrap();
+          text = "N V - B D I Z C".to_string();
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 80.0, 187.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          // フラグ
-          text = format!("PC: {:<08x}, SP: {:<08x}", cpu.pc, cpu.sp);
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 60.0);
+          for i in 0 .. 8 {
+            let digit = (7 - i);
+            let stat = cpu.p & (1 << digit) == 0;
+            let color = if stat { [0.1, 0.9, 0.6, 1.0] } else { [0.9, 0.1, 0.3, 1.0] };
 
-          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
-            &text,
-            &mut glyphs,
-            &c.draw_state,
-            transform,
-            g
-          ).unwrap();
+            text = (if stat { "▲" } else { "▼" }).to_string();
+            transform = c.transform.trans(WIDTH as f64 * SIZE + 77.0 + i as f64 * 15.5, 210.0);
+            text::Text::new_color(color, 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
+          }
 
-          text = format!("Flags: {:<08b}", cpu.p);
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, 90.0);
+          // レジスタの状態
+          text = format!("A: 0x{:<08x}", cpu.a);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 240.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
-            &text,
-            &mut glyphs,
-            &c.draw_state,
-            transform,
-            g
-          ).unwrap();
+          text = format!("X: 0x{:<08x}", cpu.x);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 270.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          // 命令実行回数、起動時間
-          text = format!("Executions count: {:<010}", cpu_time);
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, height as f64 - 60.0);
+          text = format!("Y: 0x{:<08x}", cpu.y);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 300.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
-            &text,
-            &mut glyphs,
-            &c.draw_state,
-            transform,
-            g
-          ).unwrap();
+          text = format!("SP: 0x{:<08x}", cpu.sp);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 360.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          text = format!("Startup time: {:<010}(s)",
-            match start_at.elapsed() {
-              Ok(elapsed) => elapsed.as_secs(),
-              Err(_) => panic!()
-            }
-          );
-          transform = c.transform.trans(WIDTH as f64 * SIZE + 20.0, height as f64 - 30.0);
+          text = format!("PC: 0x{:<016x}", cpu.pc);
+          transform = c.transform.trans(WIDTH as f64 * SIZE + 30.0, 330.0);
+          text::Text::new_color([1.0; 4], 15).draw(&text, &mut glyphs, &c.draw_state, transform, g).unwrap();
 
-          text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15).draw(
-            &text,
-            &mut glyphs,
-            &c.draw_state,
-            transform,
-            g
-          ).unwrap();
-
+          // キャッシュクリアしたりいい感じにする
           glyphs.factory.encoder.flush(d);
 
           // 直接CHR-ROMの中身を全部描画してみる
-          for i in 0 .. (32 * 10) {
-            let base = 16 * (0x21 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
+          for i in 0 .. chr_rom.len() / 16 /* (32 * 10) */ {
+            let base = 16 * i; // * (0x21 + i); // $21: 記号と数字, $41: 英大文字と感嘆/疑問符
             let pattern_low = &chr_rom[base .. base + 0x8]; // 0 ~ 7
             let pattern_high = &chr_rom[base + 0x8 .. base + 0x10]; // 8 ~ 15
 
             for y in 0 .. 8 {
               for x in 0 .. 8 {
-                fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
-                let dx = ((7 - x) + (i + 1) % 32 * 8) as u32 + WIDTH + 11;
-                let dy = y as u32 + ((i + 1) / 32) as u32 * 8 + 90;
+                // fn is_put(v: u8, x: u8) -> bool { (v >> x) & 1 == 1 }
+                let dx = ((7 - x) + (i + 1) % 32 * 8) as u32 + WIDTH + 275;
+                let dy = y as u32 + ((i + 1) / 32) as u32 * 8 + 7;
 
-                screen.put_pixel(
-                  dx, dy,
-                  if is_put(pattern_low[y], x as u8) { Rgba([255, 255, 255, 127]) }
-                  else { Rgba([0; 4]) }
-                );
+                let put_low = (pattern_low[y] >> x) & 1 == 1;
+                let put_high = (pattern_high[y] >> x) & 1 == 1;
 
-                screen.put_pixel(
-                  dx, dy,
-                  if is_put(pattern_high[y], x as u8) { Rgba([255, 255, 255, 127]) }
-                  else { Rgba([0; 4]) }
-                );
+                let color = if put_low || put_high {
+                  if put_low && put_high {
+                    Rgba([255; 4])
+                  } else {
+                    Rgba([127, 127, 127, 255])
+                  }
+                } else {
+                  Rgba([0; 4])
+                };
+
+                debug_screen.put_pixel(dx, dy, color);
               }
             }
           }
 
-          texture.update(
-            &mut texture_context,
-            &screen
+          debug_texture.update(
+            &mut debug_texture_context,
+            &debug_screen
           ).unwrap();
 
-          texture_context.encoder.flush(d);
-          image(&texture, c.transform.scale(SIZE, SIZE), g);
+          debug_texture_context.encoder.flush(d);
+          image(&debug_texture, c.transform.scale(2.0, 2.0), g);
         }
       });
     }
