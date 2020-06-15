@@ -734,6 +734,7 @@ impl Cpu {
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
     self.pc += 1;
 
+    /*
     println!(
       "Exec:
   \x1b[38;2;252;200;0mCycles: {}\x1b[m,
@@ -743,6 +744,7 @@ impl Cpu {
       opcode,
       addr_mode
     );
+    */
 
     // http://obelisk.me.uk/6502/reference.html
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
@@ -1216,6 +1218,7 @@ impl Cpu {
       _ => { println!("Unknown instruction"); }
     }
 
+    /*
     println!(
       "Stat:
   \x1b[38;2;252;200;0mAccumulator: {}\x1b[m,
@@ -1223,6 +1226,7 @@ impl Cpu {
       self.a,
       self.p
     );
+    */
 
     cycle
   }
