@@ -1,4 +1,4 @@
-const WRAM_SIZE: usize = 0x0800; // 2KiB
+const WRAM_SIZE: usize = 0x800; // 2KiB
 const PRG_ROM_SIZE: usize = 0x8000;
 const CHR_ROM_SIZE: usize = 0x2000;
 
@@ -35,20 +35,6 @@ impl Machine {
     self.chr_rom = chr_rom;
   }
 
-  pub fn store(
-    &mut self,
-    addr: usize,
-    val: u8
-  ) {
-    self.wram[addr] = val;
-  }
-
-  pub fn fetch(
-    self, addr: usize
-  ) -> u8 {
-    self.wram[addr]
-  }
-
   pub fn write(
     &mut self,
     addr: usize,
@@ -59,14 +45,15 @@ impl Machine {
   }
 
   pub fn read(
-    &mut self,
+    self,
     addr: usize
   ) -> u8 {
     if addr < 0x2000 {
-      // ppu registers
-      0
+      self.wram[addr % self.wram.len()]
     } else {
-      self.prg_rom[addr]
+      // PPU registers
+      println!("ppu reg -> {}", addr);
+      0
     }
   }
 }

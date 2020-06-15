@@ -691,6 +691,7 @@ impl Cpu {
     &mut self,
     machine: &mut machine::Machine
   ) -> u8 {
+    println!("pc -> {}", self.pc);
     let code = machine.prg_rom[self.pc as usize];
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
     self.pc += 1;
