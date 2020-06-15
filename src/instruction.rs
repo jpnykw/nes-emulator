@@ -654,13 +654,21 @@ impl Cpu {
   ) -> u16 {
     match addr_mode {
       Addressing::Immediate => self.fetch_8bit(machine) as u16,
+
       Addressing::Zeropage => self.fetch_8bit(machine) as u16,
+
       Addressing::ZeropageX => (self.fetch_8bit(machine) + self.x) as u16,
+
       Addressing::ZeropageY => (self.fetch_8bit(machine) + self.y) as u16,
+
       Addressing::Absolute => self.fetch_16bit(machine),
+
       Addressing::AbsoluteX => self.fetch_16bit(machine) + self.x as u16,
+
       Addressing::AbsoluteY => self.fetch_16bit(machine) + self.y as u16,
+
       Addressing::Relative => self.fetch_8bit(machine) as u16 + self.pc,
+
       Addressing::Indirect => {
         let addr_low = self.fetch_8bit(machine) as u16;
         let addr_high = self.fetch_8bit(machine) as u16;
@@ -670,7 +678,24 @@ impl Cpu {
         let data_high = machine.read(addr + 1) as u16;
 
         ((data_high << 8) | data_low) as u16
-      }
+      },
+
+      Addressing::IndirectX => {
+        let addr = (self.fetch_8bit(machine) + self.x) as usize;
+        let data_low = machine.read(addr) as u16;
+        let data_high = machine.read(addr + 1) as u16;
+
+        ((data_high << 8) | data_low) as u16
+      },
+
+      Addressing::IndirectY => {
+        let addr = (self.fetch_8bit(machine) + self.y) as usize;
+        let data_low = machine.read(addr) as u16;
+        let data_high = machine.read(addr + 1) as u16;
+
+        ((data_high << 8) | data_low) as u16
+      },
+
       _ => 0 // Implied, Accumulator
     }
   }
