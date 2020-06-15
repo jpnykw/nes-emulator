@@ -51,7 +51,7 @@ impl Cpu {
     val: u8)
   {
     let addr = 0x100 + self.sp as u16;
-    machine.store(self.sp as usize, val);
+    machine.write(self.sp as usize, val);
     self.sp -= 1;
   }
 
@@ -60,7 +60,7 @@ impl Cpu {
     machine: &mut machine::Machine
   ) -> u8 {
     self.sp += 1;
-    machine.fetch(self.sp as usize)
+    machine.read(self.sp as usize)
   }
 }
 
