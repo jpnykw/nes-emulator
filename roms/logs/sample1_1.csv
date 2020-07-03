@@ -1,0 +1,36 @@
+timing,       opcode,  st, detect,          expect
+max pc 32769, inst 78, --, SEI / Implied,   SEI / Implied
+max pc 32771, inst a2, --, LDX / Immediate, LDX / Immediate
+max pc 32772, inst 9a, NO, ISC / AbsoluteX, TXS / Implied
+max pc 32774, inst a9, --, LDA / Immediate, LDA / Immediate
+max pc 32777, inst 8d, NO, STA / Absolute,  BRK / Implied
+max pc 32780, inst 8d, NO, BRK / Implied,   STA / Absolute
+max pc 32782, inst a9
+max pc 32785, inst 8d
+max pc 32787, inst a9
+max pc 32790, inst 8d
+max pc 32792, inst a2
+max pc 32794, inst a0
+max pc 32797, inst bd
+max pc 32800, inst 8d
+max pc 32801, inst e8
+max pc 32802, inst 88
+max pc 32804, inst d0
+max pc 32806, inst a9
+max pc 32809, inst 8d
+max pc 32811, inst a9
+max pc 32814, inst 8d
+max pc 32816, inst a2
+max pc 32818, inst a0
+max pc 32821, inst bd
+max pc 32824, inst 8d
+max pc 32825, inst e8
+max pc 32826, inst 88
+max pc 32828, inst d0
+max pc 32830, inst a9
+max pc 32833, inst 8d
+max pc 32836, inst 8d
+max pc 32838, inst a9
+max pc 32841, inst 8d
+max pc 32843, inst a9
+max pc 32846, inst 8d

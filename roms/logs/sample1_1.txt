@@ -1,0 +1,649 @@
+========== START ==========
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+max pc 1
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+max pc 2
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+max pc 3
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+max pc 4
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+max pc 5
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+max pc 6
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+max pc 7
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+max pc 8
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: ISC,
+  addr_modeessing: AbsoluteX
+
+Exec:
+  Cycles: 2,
+  Instruction: TXS,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDA,
+  addr_modeessing: Immediate
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 4,
+  Instruction: STA,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 7,
+  Instruction: BRK,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 6,
+  Instruction: JSR,
+  addr_modeessing: Absolute
+
+Exec:
+  Cycles: 2,
+  Instruction: SEI,
+  addr_modeessing: Implied
+
+Exec:
+  Cycles: 2,
+  Instruction: LDX,
+  addr_modeessing: Immediate
