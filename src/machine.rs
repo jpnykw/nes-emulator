@@ -13,7 +13,7 @@ pub struct Machine {
   pub chr_rom: [u8; CHR_ROM_SIZE],
 
   // for PPU
-  pub nametable: [[u8; NAME_TABLE_SIZE]; 4]
+  pub nametable: [[u8; NAME_TABLE_SIZE]; 4],
 }
 
 impl Machine {
@@ -22,24 +22,16 @@ impl Machine {
       wram: [0; WRAM_SIZE],
       prg_rom: [0; PRG_ROM_SIZE],
       chr_rom: [0; CHR_ROM_SIZE],
-      nametable: [[0; NAME_TABLE_SIZE]; 4]
+      nametable: [[0; NAME_TABLE_SIZE]; 4],
     }
   }
 
-  pub fn set_roms(
-    &mut self,
-    prg_rom: [u8; PRG_ROM_SIZE],
-    chr_rom: [u8; CHR_ROM_SIZE]
-  ) {
+  pub fn set_roms(&mut self, prg_rom: [u8; PRG_ROM_SIZE], chr_rom: [u8; CHR_ROM_SIZE]) {
     self.prg_rom = prg_rom;
     self.chr_rom = chr_rom;
   }
 
-  pub fn write(
-    &mut self,
-    addr: usize,
-    val: u8
-  ) {
+  pub fn write(&mut self, addr: usize, val: u8) {
     if addr < 0x2000 {
       self.wram[addr] = val;
     } else {
@@ -47,10 +39,7 @@ impl Machine {
     }
   }
 
-  pub fn read(
-    self,
-    addr: usize
-  ) -> u8 {
+  pub fn read(&mut self, addr: usize) -> u8 {
     if addr < 0x2000 {
       self.wram[addr % self.wram.len()]
     } else {

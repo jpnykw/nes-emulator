@@ -1,9 +1,9 @@
-pub struct Ppu {
-}
+pub struct Ppu {}
 
 impl Ppu {
   pub fn new() -> Self {
-    Self {
-    }
+    Self {}
   }
+
+  pub fn exec() {}
 }

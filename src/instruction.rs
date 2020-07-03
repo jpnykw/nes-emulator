@@ -83,7 +83,7 @@ pub enum Opcode {
   LAX,
   SAX,
   SKB,
-  IGN
+  IGN,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -100,7 +100,7 @@ pub enum Addressing {
   AbsoluteY,
   Indirect,
   IndirectX,
-  IndirectY
+  IndirectY,
 }
 
 #[derive(Debug)]
@@ -108,7 +108,7 @@ pub enum Interrupt {
   RESET,
   NMI,
   IRQ,
-  BRK
+  BRK,
 }
 
 #[derive(Debug)]
@@ -128,10 +128,7 @@ pub struct Instruction(u8, Opcode, Addressing); // 頭はCycle数
 /// ```
 impl Cpu {
   // TODO: ROMのマシンコードを命令に変換する
-  pub fn convert(
-    self,
-    code: u8
-  ) -> Instruction {
+  pub fn convert(self, code: u8) -> Instruction {
     match code {
       /// 転送命令
       // LDA
@@ -449,155 +446,126 @@ impl Cpu {
         let text = format!("Unknown code 0x{:>02x}", code);
 
         // 本来はすべてpanicさせるべき(?)
-        if false { panic!(text); }
+        if false {
+          panic!(text);
+        }
         // println!("{}", text);
         Instruction(1, Opcode::NOP, Addressing::Implied)
       }
     }
   }
 
-  pub fn interrupt(
-    &mut self,
-    machine: &mut machine::Machine,
-    inst: Interrupt
-  ) {
+  pub fn interrupt(&mut self, machine: &mut machine::Machine, inst: Interrupt) {
     match inst {
       Interrupt::RESET => {
         self.set_i_flag(ON);
         // TODO: PCの下位バイトを$FFFCから
         // 上位バイトを$FFFDからフェッチ
-
-      },
+      }
 
       Interrupt::NMI => {
         self.set_b_flag(OFF);
+
         self.push_stack(machine, (self.pc >> 8) as u8);
         self.push_stack(machine, (self.pc & 255) as u8);
         self.push_stack(machine, self.p);
+
         self.set_i_flag(ON);
-      },
+      }
 
       Interrupt::IRQ => {
         if self.read_i_flag() == 0 {
           self.set_b_flag(OFF);
-          // TODO: PCの上位バイト、下位バイト、
-          // ステータスレジスタを順にスタックへ格納
+
+          self.push_stack(machine, (self.pc >> 8) as u8);
+          self.push_stack(machine, (self.pc & 255) as u8);
+          self.push_stack(machine, self.p);
+
           self.set_i_flag(ON);
-          // TODO: PCの下位バイトを$FFFEから、
-          // 上位バイトを$FFFFからフェッチ
         }
-      },
+      }
 
       Interrupt::BRK => {
         if self.read_i_flag() == 0 {
           self.set_b_flag(ON);
           self.pc += 1;
-          // TODO: PCの上位バイト、下位バイト、
-          // ステータスレジスタを順にスタックへ格納
-          self.set_i_flag(ON);
-          // TODO: PCの下位バイトを$FFFEから、
-          // 上位バイトを$FFFFからフェッチ
-        }
-      },
 
-      _ => panic!("Unknown interrupt")
+          self.push_stack(machine, (self.pc >> 8) as u8);
+          self.push_stack(machine, (self.pc & 255) as u8);
+          self.push_stack(machine, self.p);
+          self.set_i_flag(ON);
+        }
+      }
+
+      _ => panic!("Unknown interrupt"),
     }
   }
 
   // フラグ(n-bit目)の読み出し
-  fn read_c_flag(
-    &self
-  ) -> u8 {
+  fn read_c_flag(&self) -> u8 {
     self.p & (1 << 0)
   }
 
-  fn read_z_flag(
-    &self
-  ) -> u8 {
+  fn read_z_flag(&self) -> u8 {
     self.p & (1 << 1)
   }
 
-  fn read_i_flag(
-    &self
-  ) -> u8 {
+  fn read_i_flag(&self) -> u8 {
     self.p & (1 << 2)
   }
 
-  fn read_d_flag(
-    &self
-  ) -> u8 {
+  fn read_d_flag(&self) -> u8 {
     self.p & (1 << 3)
   }
 
-  fn read_b_flag(
-    &self
-  ) -> u8 {
+  fn read_b_flag(&self) -> u8 {
     self.p & (1 << 4)
   }
 
-  fn read_v_flag(
-    &self
-  ) -> u8 {
+  fn read_v_flag(&self) -> u8 {
     self.p & (1 << 6)
   }
 
-  fn read_n_flag(
-    &self
-  ) -> u8 {
+  fn read_n_flag(&self) -> u8 {
     self.p & (1 << 7)
   }
 
   // フラグ操作
-  fn set_c_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_c_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x01  // 1 << 0
+      self.p | 0x01 // 1 << 0
     } else {
       self.p & (!0x01)
     };
   }
 
-  fn set_z_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_z_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x02  // 1 << 1
+      self.p | 0x02 // 1 << 1
     } else {
       self.p & (!0x02)
     };
   }
 
-  fn set_i_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_i_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x04  // 1 << 2
+      self.p | 0x04 // 1 << 2
     } else {
       self.p & (!0x04)
     };
   }
 
-  fn set_d_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_d_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x08  // 1 << 3
+      self.p | 0x08 // 1 << 3
     } else {
       self.p & (!0x08)
     };
   }
 
-  fn set_b_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_b_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x10  // 1 << 4
+      self.p | 0x10 // 1 << 4
     } else {
       self.p & (!0x10)
     };
@@ -605,41 +573,29 @@ impl Cpu {
 
   // 1 << 5 は常に1
 
-  fn set_v_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_v_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x40  // 1 << 6
+      self.p | 0x40 // 1 << 6
     } else {
       self.p & (!0x40)
     };
   }
 
-  fn set_n_flag(
-    &mut self,
-    stat: bool
-  ) {
+  fn set_n_flag(&mut self, stat: bool) {
     self.p = if stat {
-      self.p | 0x80  // 1 << 7
+      self.p | 0x80 // 1 << 7
     } else {
       self.p & (!0x80)
     };
   }
 
-  fn fetch_8bit(
-    mut self,
-    machine: &mut machine::Machine
-  ) -> u8 {
+  fn fetch_8bit(mut self, machine: &mut machine::Machine) -> u8 {
     let val = machine.read(self.pc as usize);
     self.pc += 1;
     val
   }
 
-  fn fetch_16bit(
-    self,
-    machine: &mut machine::Machine
-  ) -> u16 {
+  fn fetch_16bit(self, machine: &mut machine::Machine) -> u16 {
     let low = self.fetch_8bit(machine) as u16;
     let high = self.fetch_8bit(machine) as u16;
     (high << 8) | low
@@ -647,11 +603,7 @@ impl Cpu {
 
   // アドレスを返す
   // https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
-  fn fetch_operand(
-    self,
-    addr_mode: Addressing,
-    machine: &mut machine::Machine
-  ) -> u16 {
+  fn fetch_operand(self, addr_mode: Addressing, machine: &mut machine::Machine) -> u16 {
     match addr_mode {
       Addressing::Immediate => self.fetch_8bit(machine) as u16,
 
@@ -667,7 +619,7 @@ impl Cpu {
 
       Addressing::AbsoluteY => self.fetch_16bit(machine) + self.y as u16,
 
-      Addressing::Relative => self.fetch_8bit(machine) as u16 + self.pc,
+      Addressing::Relative => (self.fetch_8bit(machine) as i32 + self.pc as i32) as u16,
 
       Addressing::Indirect => {
         let addr_low = self.fetch_8bit(machine) as u16;
@@ -678,7 +630,7 @@ impl Cpu {
         let data_high = machine.read(addr + 1) as u16;
 
         ((data_high << 8) | data_low) as u16
-      },
+      }
 
       Addressing::IndirectX => {
         let addr = (self.fetch_8bit(machine) + self.x) as usize;
@@ -686,7 +638,7 @@ impl Cpu {
         let data_high = machine.read(addr + 1) as u16;
 
         ((data_high << 8) | data_low) as u16
-      },
+      }
 
       Addressing::IndirectY => {
         let addr = (self.fetch_8bit(machine) + self.y) as usize;
@@ -694,20 +646,14 @@ impl Cpu {
         let data_high = machine.read(addr + 1) as u16;
 
         ((data_high << 8) | data_low) as u16
-      },
+      }
 
-      _ => 0 // Implied, Accumulator
+      _ => 0, // Implied, Accumulator
     }
   }
 
   // データを返す
-  fn fetch_data(
-    self,
-    addr_mode: Addressing,
-    machine: &mut machine::Machine
-  ) -> u8 {
-    // TODO: 正しいアドレス指定を実装する
-    // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#addressing
+  fn fetch_data(self, addr_mode: Addressing, machine: &mut machine::Machine) -> u8 {
     match addr_mode {
       Addressing::Implied => 0,
 
@@ -716,7 +662,7 @@ impl Cpu {
       Addressing::Immediate => {
         let data = self.fetch_operand(addr_mode, machine);
         data as u8
-      },
+      }
 
       _ => {
         let data = self.fetch_operand(addr_mode, machine);
@@ -726,25 +672,10 @@ impl Cpu {
   }
 
   // 実行したいニャンね
-  pub fn exec(
-    &mut self,
-    machine: &mut machine::Machine
-  ) -> u8 {
+  pub fn exec(&mut self, machine: &mut machine::Machine) -> (u8, Opcode) {
     let code = machine.prg_rom[self.pc as usize];
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
-    self.pc += 1;
-
-    /*
-    println!(
-      "Exec:
-  \x1b[38;2;252;200;0mCycles: {}\x1b[m,
-  \x1b[38;2;20;210;240mInstruction: {:?}\x1b[m,
-  \x1b[38;2;170;95;230maddr_modeessing: {:?}\x1b[m",
-      cycle,
-      opcode,
-      addr_mode
-    );
-    */
+    // self.pc += 1;
 
     // http://obelisk.me.uk/6502/reference.html
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
@@ -762,7 +693,7 @@ impl Cpu {
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
 
         self.a = res;
-      },
+      }
 
       Opcode::SBC => {
         let a = self.a;
@@ -775,7 +706,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_c_flag(res >= 0);
         self.a = res;
-      },
+      }
 
       Opcode::AND => {
         let a = self.a;
@@ -785,7 +716,7 @@ impl Cpu {
         self.set_z_flag(a == 0);
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
         self.a = res;
-      },
+      }
 
       Opcode::ORA => {
         let a = self.a;
@@ -795,7 +726,7 @@ impl Cpu {
         self.set_z_flag(a == 0);
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
         self.a = res;
-      },
+      }
 
       Opcode::EOR => {
         let a = self.a;
@@ -805,7 +736,7 @@ impl Cpu {
         self.set_z_flag(a == 0);
         self.set_n_flag((res & (1 << 7)) == 1 << 7);
         self.a = res;
-      },
+      }
 
       // bitシフト, bitローテーション
       Opcode::ASL => {
@@ -823,7 +754,7 @@ impl Cpu {
           let addr = self.fetch_operand(addr_mode, machine) as usize;
           machine.write(addr, res);
         }
-      },
+      }
 
       Opcode::LSR => {
         let a = self.a;
@@ -839,7 +770,7 @@ impl Cpu {
           let addr = self.fetch_operand(addr_mode, machine) as usize;
           machine.write(addr, res);
         }
-      },
+      }
 
       Opcode::ROL => {
         let a = self.a;
@@ -855,7 +786,7 @@ impl Cpu {
           let addr = self.fetch_operand(addr_mode, machine) as usize;
           machine.write(addr, res);
         }
-      },
+      }
 
       Opcode::ROR => {
         let a = self.a;
@@ -871,7 +802,7 @@ impl Cpu {
           let addr = self.fetch_operand(addr_mode, machine) as usize;
           machine.write(addr, res);
         }
-      },
+      }
 
       // 条件分岐
       Opcode::BCC => {
@@ -879,57 +810,56 @@ impl Cpu {
         if self.read_c_flag() == 0 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BCS => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_c_flag() == 1 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BNE => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_z_flag() == 0 {
           self.pc = addr;
         }
-      },
-
+      }
 
       Opcode::BEQ => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_z_flag() == 1 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BVC => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_v_flag() == 0 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BVS => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_v_flag() == 1 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BPL => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_n_flag() == 0 {
           self.pc = addr;
         }
-      },
+      }
 
       Opcode::BMI => {
         let addr = self.fetch_operand(addr_mode, machine);
         if self.read_n_flag() == 1 {
           self.pc = addr;
         }
-      },
+      }
 
       // bit検査
       Opcode::BIT => {
@@ -938,13 +868,13 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == 1 << 7);
         self.set_v_flag(res & (1 << 6) == 1 << 6);
         self.set_z_flag(self.a & res == 0);
-      },
+      }
 
       // ジャンプ命令
       Opcode::JMP => {
         let addr = self.fetch_operand(addr_mode, machine);
         self.pc = addr;
-      },
+      }
 
       Opcode::JSR => {
         let addr = self.fetch_operand(addr_mode, machine);
@@ -952,22 +882,19 @@ impl Cpu {
         self.push_stack(machine, (self.pc >> 8) as u8);
         self.push_stack(machine, (self.pc & 0xff) as u8);
         self.pc = addr;
-      },
+      }
 
       Opcode::RTS => {
         let lower = self.pop_stack(machine) as u16;
         let higher = self.pop_stack(machine) as u16;
         let addr = ((higher << 8) | lower) + 1;
         self.pc = addr;
-      },
+      }
 
       // 割り込み処理
       Opcode::BRK => {
-        self.interrupt(
-          machine,
-          Interrupt::BRK
-        );
-      },
+        self.interrupt(machine, Interrupt::BRK);
+      }
 
       Opcode::RTS => {
         let stat = self.pop_stack(machine);
@@ -976,7 +903,7 @@ impl Cpu {
 
         self.p = stat;
         self.pc = (higher << 8) | lower;
-      },
+      }
 
       // 比較演算
       Opcode::CMP => {
@@ -986,7 +913,7 @@ impl Cpu {
         self.set_n_flag((res >> 7) & 1 == 1);
         self.set_z_flag(res == 0);
         self.set_c_flag(self.a >= m);
-      },
+      }
 
       Opcode::CPX => {
         let m = self.fetch_data(addr_mode, machine);
@@ -995,7 +922,7 @@ impl Cpu {
         self.set_n_flag((res >> 7) & 1 == 1);
         self.set_z_flag(res == 0);
         self.set_c_flag(self.y >= m);
-      },
+      }
 
       Opcode::CPY => {
         let m = self.fetch_data(addr_mode, machine);
@@ -1004,7 +931,7 @@ impl Cpu {
         self.set_n_flag((res >> 7) & 1 == 1);
         self.set_z_flag(res == 0);
         self.set_c_flag(self.x >= m);
-      },
+      }
 
       // ワンアゲ, ワンサゲ
       // https://twitter.com/yuki384love/status/1270365593800081408
@@ -1016,7 +943,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag((res >> 7) & 1 == (1 << 7));
         machine.write(addr as usize, res);
-      },
+      }
 
       Opcode::DEC => {
         let addr = self.fetch_operand(addr_mode, machine);
@@ -1026,7 +953,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         machine.write(addr as usize, res);
-      },
+      }
 
       Opcode::INX => {
         let res = self.x + 1;
@@ -1034,7 +961,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.x = res;
-      },
+      }
 
       Opcode::DEX => {
         let res = self.x - 1;
@@ -1042,7 +969,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.x = res;
-      },
+      }
 
       Opcode::INY => {
         let res = self.y + 1;
@@ -1050,7 +977,7 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.y = res;
-      },
+      }
 
       Opcode::DEY => {
         let res = self.y - 1;
@@ -1058,36 +985,36 @@ impl Cpu {
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.y = res;
-      },
+      }
 
       // フラグ操作
       Opcode::CLC => {
         self.set_c_flag(OFF);
-      },
+      }
 
       Opcode::SEC => {
         self.set_c_flag(ON);
-      },
+      }
 
       Opcode::CLI => {
         self.set_i_flag(OFF);
-      },
+      }
 
       Opcode::SEI => {
         self.set_i_flag(ON);
-      },
+      }
 
       Opcode::CLD => {
         self.set_d_flag(OFF);
-      },
+      }
 
       Opcode::SED => {
         self.set_d_flag(ON);
-      },
+      }
 
       Opcode::CLV => {
         self.set_v_flag(OFF);
-      },
+      }
 
       // ロード
       Opcode::LDA => {
@@ -1096,7 +1023,7 @@ impl Cpu {
         self.set_n_flag(m & (1 << 7) == (1 << 7));
         self.set_z_flag(m == 0);
         self.a = m;
-      },
+      }
 
       Opcode::LDX => {
         let m = self.fetch_data(addr_mode, machine);
@@ -1104,7 +1031,7 @@ impl Cpu {
         self.set_n_flag(m & (1 << 7) == (1 << 7));
         self.set_z_flag(m == 0);
         self.x = m;
-      },
+      }
 
       Opcode::LDY => {
         let m = self.fetch_data(addr_mode, machine);
@@ -1112,23 +1039,23 @@ impl Cpu {
         self.set_n_flag(m & (1 << 7) == (1 << 7));
         self.set_z_flag(m == 0);
         self.y = m;
-      },
+      }
 
       // ストア
       Opcode::STA => {
         let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.a);
-      },
+      }
 
       Opcode::STX => {
         let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.x);
-      },
+      }
 
       Opcode::STY => {
         let addr = self.fetch_operand(addr_mode, machine) as usize;
         machine.write(addr, self.y);
-      },
+      }
 
       // レジスタ間転送
       Opcode::TAX => {
@@ -1137,7 +1064,7 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.x = res;
-      },
+      }
 
       Opcode::TXA => {
         let res = self.x;
@@ -1145,7 +1072,7 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.a = res;
-      },
+      }
 
       Opcode::TAY => {
         let res = self.a;
@@ -1153,7 +1080,7 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.y = res;
-      },
+      }
 
       Opcode::TYA => {
         let res = self.y;
@@ -1161,7 +1088,7 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.a = res;
-      },
+      }
 
       Opcode::TSX => {
         let res = (self.sp & ((1 << 8) - 1)) as u8;
@@ -1169,16 +1096,16 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.x = res as u8;
-      },
+      }
 
       Opcode::TXS => {
         self.sp = (self.x as u16) | (1 << 8);
-      },
+      }
 
       // スタック
       Opcode::PHA => {
         self.push_stack(machine, self.a);
-      },
+      }
 
       Opcode::PLA => {
         let res = self.pop_stack(machine);
@@ -1186,15 +1113,15 @@ impl Cpu {
         self.set_n_flag(res & (1 << 7) == (1 << 7));
         self.set_z_flag(res == 0);
         self.a = res;
-      },
+      }
 
       Opcode::PHP => {
         self.push_stack(machine, self.p);
-      },
+      }
 
       Opcode::PLP => {
         self.p = self.pop_stack(machine);
-      },
+      }
 
       // Unofficial opecodes
       Opcode::ISC => {
@@ -1206,28 +1133,32 @@ impl Cpu {
         let (res, over_2) = data.overflowing_sub(if self.read_c_flag() == 1 { 0 } else { 1 });
 
         self.set_n_flag(res & (1 << 7) == (1 << 7));
-        self.set_v_flag((self.a ^ val) & (1 << 7) == (1 << 7) && (self.a ^ res) & (1 << 7) == (1 << 7));
+        self.set_v_flag(
+          (self.a ^ val) & (1 << 7) == (1 << 7) && (self.a ^ res) & (1 << 7) == (1 << 7),
+        );
         self.set_z_flag(res == 0);
         self.set_c_flag(!(over_1 || over_2));
         self.a = res;
-      },
+      }
 
       // Do nothing (just like me)
-      Opcode::NOP => {},
+      Opcode::NOP => {}
 
-      _ => { println!("Unknown instruction"); }
+      _ => {
+        println!("Unknown instruction");
+      }
     }
 
     /*
-    println!(
-      "Stat:
-  \x1b[38;2;252;200;0mAccumulator: {}\x1b[m,
-  \x1b[38;2;20;210;240mFlag: {:<08b}\x1b[m",
-      self.a,
-      self.p
-    );
-    */
+      println!(
+        "Stat:
+    \x1b[38;2;252;200;0mAccumulator: {}\x1b[m,
+    \x1b[38;2;20;210;240mFlag: {:<08b}\x1b[m",
+        self.a,
+        self.p
+      );
+      */
 
-    cycle
+    (cycle, opcode)
   }
 }

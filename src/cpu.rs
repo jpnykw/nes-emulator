@@ -30,7 +30,7 @@ pub struct Cpu {
   /// | | | In subtraction operations however, this flag is cleared - set to 0 - if a borrow is required,
   /// | | | set to 1 - if no borrow is required. The carry flag is also used in shift and rotate logical operations.
   ///
-  pub p: u8
+  pub p: u8,
 }
 
 impl Cpu {
@@ -41,26 +41,17 @@ impl Cpu {
       y: 0,
       pc: 0,
       sp: 0xfe,
-      p: 0x20
+      p: 0x20,
     }
   }
 
-  pub fn push_stack(
-    &mut self,
-    machine: &mut machine::Machine,
-    val: u8)
-  {
-    let addr = 0x100 + self.sp as u16;
+  pub fn push_stack(&mut self, machine: &mut machine::Machine, val: u8) {
     machine.write(self.sp as usize, val);
     self.sp -= 1;
   }
 
-  pub fn pop_stack(
-    &mut self,
-    machine: &mut machine::Machine
-  ) -> u8 {
+  pub fn pop_stack(&mut self, machine: &mut machine::Machine) -> u8 {
     self.sp += 1;
     machine.read(self.sp as usize)
   }
 }
-
