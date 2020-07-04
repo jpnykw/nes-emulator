@@ -19,7 +19,7 @@ const DEBUG_HEIGHT: u32 = 0; // 100;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
-const SIZE: f64 = 2.0;
+const SIZE: f64 = 4.0;
 
 fn main() {
   // デバッグモード判定用
@@ -111,6 +111,8 @@ fn main() {
       let mut cycles = 0;
       while cycles < timing {
         let exec_res = cpu.exec(&mut machine);
+        // println!("inst {:x}", exec_res.1);
+
         cycles += exec_res.0 as usize;
         if max_pc < cpu.pc {
           max_pc = cpu.pc;

@@ -589,13 +589,14 @@ impl Cpu {
     };
   }
 
-  fn fetch_8bit(mut self, machine: &mut machine::Machine) -> u8 {
+  fn fetch_8bit(&mut self, machine: &mut machine::Machine) -> u8 {
+    // println!("inc pc");
     let val = machine.read(self.pc as usize);
     self.pc += 1;
     val
   }
 
-  fn fetch_16bit(self, machine: &mut machine::Machine) -> u16 {
+  fn fetch_16bit(&mut self, machine: &mut machine::Machine) -> u16 {
     let low = self.fetch_8bit(machine) as u16;
     let high = self.fetch_8bit(machine) as u16;
     (high << 8) | low
@@ -603,7 +604,7 @@ impl Cpu {
 
   // アドレスを返す
   // https://wiki.nesdev.com/w/index.php/CPU_addressing_modes
-  fn fetch_operand(self, addr_mode: Addressing, machine: &mut machine::Machine) -> u16 {
+  fn fetch_operand(&mut self, addr_mode: Addressing, machine: &mut machine::Machine) -> u16 {
     match addr_mode {
       Addressing::Immediate => self.fetch_8bit(machine) as u16,
 
@@ -653,7 +654,7 @@ impl Cpu {
   }
 
   // データを返す
-  fn fetch_data(self, addr_mode: Addressing, machine: &mut machine::Machine) -> u8 {
+  fn fetch_data(&mut self, addr_mode: Addressing, machine: &mut machine::Machine) -> u8 {
     match addr_mode {
       Addressing::Implied => 0,
 
@@ -672,10 +673,14 @@ impl Cpu {
   }
 
   // 実行したいニャンね
-  pub fn exec(&mut self, machine: &mut machine::Machine) -> (u8, Opcode) {
+  pub fn exec(&mut self, machine: &mut machine::Machine) -> (u8, u8) {
+    // 命令をfetchする
     let code = machine.prg_rom[self.pc as usize];
+    // カウンタを保存して、進める
+    let pc_tmp = self.pc;
+    self.pc += 1;
+
     let Instruction(cycle, opcode, addr_mode) = self.convert(code);
-    // self.pc += 1;
 
     // http://obelisk.me.uk/6502/reference.html
     // http://pgate1.at-ninja.jp/NES_on_FPGA/nes_cpu.htm#instruction
@@ -878,9 +883,8 @@ impl Cpu {
 
       Opcode::JSR => {
         let addr = self.fetch_operand(addr_mode, machine);
-        // println!("{}, {}", addr, self.sp);
-        self.push_stack(machine, (self.pc >> 8) as u8);
-        self.push_stack(machine, (self.pc & 0xff) as u8);
+        self.push_stack(machine, ((pc_tmp + 2) >> 8) as u8);
+        self.push_stack(machine, ((pc_tmp + 2) & 0xff) as u8);
         self.pc = addr;
       }
 
@@ -980,7 +984,7 @@ impl Cpu {
       }
 
       Opcode::DEY => {
-        let res = self.y - 1;
+        let res = self.y.wrapping_sub(1);
 
         self.set_z_flag(res == 0);
         self.set_n_flag(res & (1 << 7) == (1 << 7));
@@ -1026,7 +1030,9 @@ impl Cpu {
       }
 
       Opcode::LDX => {
+        // if addr_mode == Addressing::Immediate { println!("{}", pc_tmp); }
         let m = self.fetch_data(addr_mode, machine);
+        // if addr_mode == Addressing::Immediate { println!("   {}", self.pc); }
 
         self.set_n_flag(m & (1 << 7) == (1 << 7));
         self.set_z_flag(m == 0);
@@ -1159,6 +1165,6 @@ impl Cpu {
       );
       */
 
-    (cycle, opcode)
+    (cycle, code)
   }
 }
