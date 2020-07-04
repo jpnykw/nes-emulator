@@ -1,0 +1,52 @@
+body {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.head {
+    display: flex;
+}
+
+textarea {
+    height: 400px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    resize: none;
+    background: #eee;
+}
+
+.input {
+    /* margin: 0 5px; */
+    width: 50%;
+}
+
+.input:nth-of-type(1) {
+    margin-right: 10px;
+}
+
+.output {
+    width: 100%;
+}
+
+button {
+    width: 100%;
+    height: 60px;
+    padding: 0;
+    margin: 10px 0;
+    border: none;
+    font-size: 20px;
+}
+
+div {
+    margin: 0;
+    padding: 0;
+}
+
+.contents {
+    width: 600px;
+    padding: 10px;
+    /* display: grid;
+    place-items: center; */
+}
