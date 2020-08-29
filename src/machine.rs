@@ -14,6 +14,9 @@ pub struct Machine {
 
   // for PPU
   pub nametable: [[u8; NAME_TABLE_SIZE]; 4],
+
+  pub prg_bytes: usize,
+  pub chr_bytes: usize
 }
 
 impl Machine {
@@ -23,6 +26,8 @@ impl Machine {
       prg_rom: [0; PRG_ROM_SIZE],
       chr_rom: [0; CHR_ROM_SIZE],
       nametable: [[0; NAME_TABLE_SIZE]; 4],
+      prg_bytes: 0,
+      chr_bytes: 0
     }
   }
 
@@ -40,12 +45,6 @@ impl Machine {
   }
 
   pub fn read(&mut self, addr: usize) -> u8 {
-    if addr < 0x2000 {
-      self.wram[addr % self.wram.len()]
-    } else {
-      // PPU registers
-      println!("ppu reg -> {}", addr);
-      0
-    }
+    self.prg_rom[addr]
   }
 }

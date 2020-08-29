@@ -1,4 +1,5 @@
 use super::cpu;
+use super::machine;
 use std::fs::File;
 use std::io::Read;
 
@@ -22,7 +23,7 @@ pub fn debug(val: u8, eol: bool) {
   print!("{:>04x}{}", val, if eol { "\n" } else { " " });
 }
 
-pub fn load_cassette(path: String, mode: bool) -> Result<([u8; 0x8000], [u8; 0x2000]), String> {
+pub fn load_cassette(machine: &mut machine::Machine, path: String, mode: bool) -> Result<([u8; 0x8000], [u8; 0x2000]), String> {
   let mut prg_rom = [0; 0x8000];
   let mut chr_rom = [0; 0x2000];
   let ines = read_nes(path);
@@ -47,6 +48,9 @@ pub fn load_cassette(path: String, mode: bool) -> Result<([u8; 0x8000], [u8; 0x2
       let chr_banks = buffer[5] as usize;
       let prg_bytes = prg_banks * 0x4000;
       let chr_bytes = chr_banks * 0x2000;
+
+      machine.prg_bytes = prg_bytes;
+      machine.chr_bytes = chr_bytes;
 
       let header = 16;
       let prg_addr = header;

@@ -19,14 +19,16 @@ const DEBUG_HEIGHT: u32 = 0; // 100;
 
 const WIDTH: u32 = 256;
 const HEIGHT: u32 = 240;
-const SIZE: f64 = 4.0;
+const SIZE: f64 = 2.0; // !you must change to 2 if use gdb
 
 fn main() {
   // デバッグモード判定用
   let args: Vec<String> = env::args().collect();
+
   let gui_debug = args.contains(&"gdebug".to_string())
     || args.contains(&"gdb".to_string())
     || args.contains(&"g".to_string());
+
   let cui_debug = args.contains(&"cdebug".to_string())
     || args.contains(&"cdb".to_string())
     || args.contains(&"c".to_string());
@@ -40,7 +42,7 @@ fn main() {
   let path = "./roms/sample1.nes"; // Hello World (未達成)
                                    // let path = "./roms/nestest.nes"; // 色々テストできるROM
                                    // let path = "./roms/SHOOT.nes"; // シューティングゲーム (未達成)
-  let result = system::load_cassette(path.to_string(), cui_debug);
+  let result = system::load_cassette(&mut machine, path.to_string(), cui_debug); // ROMのサイズをmachineに渡す
 
   let (prg_rom, chr_rom) = match result {
     Ok(rom) => rom,
@@ -101,8 +103,8 @@ fn main() {
 
   let start_at = SystemTime::now(); // システムの起動時間を計測
   let timing = (263 * (341 / 3)) as usize; // PPUと同期するために必要
-
-  let mut max_pc: u16 = 0;
+  let mut cpu_count = 0; // 命令の実行数をカウント
+  let mut max_pc: u16 = 0; // デバッグ用 pc最大値
 
   let mut events = Events::new(EventSettings::new());
   while let Some(e) = events.next(&mut window) {
@@ -112,11 +114,12 @@ fn main() {
       while cycles < timing {
         let exec_res = cpu.exec(&mut machine);
         // println!("inst {:x}", exec_res.1);
+        cpu_count += 1;
 
         cycles += exec_res.0 as usize;
         if max_pc < cpu.pc {
           max_pc = cpu.pc;
-          //println!("max pc {}, opecode {:?}", max_pc, exec_res.1);
+          println!("max pc {:<02}, opecode {:?}", max_pc, cpu.convert(exec_res.1));
         }
       }
 
@@ -297,7 +300,8 @@ fn cpu_register() {
 #[test]
 fn load_cassette() {
   let path = "./roms/sample1.nes".to_string();
-  let result = system::load_cassette(path, false);
+  let mut machine = machine::Machine::new();
+  let result = system::load_cassette(&mut machine, path, false);
 
   match result {
     Ok(_) => (),
@@ -310,7 +314,8 @@ fn check_rom_data() {
   let prg_data = [0x78, 0xa2, 0xff, 0x9a, 0xa9, 0x00, 0x8d, 0x00, 0x20, 0x8d]; // from 0
   let chr_data = [0x1c, 0x3e, 0x3e, 0x3e, 0x1c, 0x1c, 0x1c, 0x1c, 0x18, 0x3c]; // from 528
   let path = "./roms/sample1.nes".to_string();
-  let result = system::load_cassette(path, false);
+  let mut machine = machine::Machine::new();
+  let result = system::load_cassette(&mut machine, path, false);
 
   for id in 0..10 {
     match &result {
@@ -325,6 +330,16 @@ fn check_rom_data() {
 }
 
 #[test]
+fn transfer_bytes() {
+  let path = "./roms/sample1.nes".to_string();
+  let mut machine = machine::Machine::new();
+  system::load_cassette(&mut machine, path, false);
+  assert_eq!(machine.prg_bytes, 32768); // PRG_ROM size of Hello World
+  assert_eq!(machine.chr_bytes, 8192); // CHR_ROM size of Hello World
+}
+
+/*
+#[test]
 fn stack_and_pop() {
   let addr = 0x1fe;
   let mut cpu = cpu::Cpu::new();
@@ -334,3 +349,4 @@ fn stack_and_pop() {
   cpu.push_stack(&mut machine, 0x7b);
   assert_eq!(cpu.pop_stack(&mut machine), 0x7b); // インクリメントされた分ずらす
 }
+*/
