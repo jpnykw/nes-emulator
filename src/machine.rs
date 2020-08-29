@@ -45,6 +45,10 @@ impl Machine {
   }
 
   pub fn read(&mut self, addr: usize) -> u8 {
-    self.prg_rom[addr]
+    if addr > self.prg_bytes {
+        self.prg_rom[addr - self.prg_bytes]
+    } else {
+        self.prg_rom[addr]
+    }
   }
 }
