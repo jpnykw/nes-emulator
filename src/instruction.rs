@@ -455,8 +455,10 @@ impl Cpu {
     }
   }
 
-  pub fn interrupt(&mut self, machine: &mut machine::Machine, inst: Interrupt) {
-    match inst {
+  pub fn interrupt(&mut self, machine: &mut machine::Machine, intr: Interrupt) {
+    println!("detect interrupt {:?}", intr);
+
+    match intr {
       Interrupt::RESET => {
         self.set_i_flag(ON);
         // TODO: PCの下位バイトを$FFFCから
@@ -499,6 +501,23 @@ impl Cpu {
 
       _ => panic!("Unknown interrupt"),
     }
+
+    // set pc
+    let low = match intr {
+      Interrupt::RESET => 0xfffc,
+      Interrupt::BRK => 0xfffe,
+      _ => 0
+    };
+
+    let high = match intr {
+      Interrupt::RESET => 0xfffd,
+      Interrupt::BRK => 0xffff,
+      _ => 0
+    };
+
+    let pc = ((machine.read(high) as u16) << 8) | (machine.read(low) as u16);
+    println!("low {}, high {}, pc {}", low, high, pc);
+    self.pc = pc;
   }
 
   // フラグ(n-bit目)の読み出し
@@ -675,8 +694,10 @@ impl Cpu {
   // 実行したいニャンね
   pub fn exec(&mut self, machine: &mut machine::Machine) -> (u8, u8) {
     // 命令をfetchする
-    let code = machine.prg_rom[self.pc as usize];
-    // カウンタを保存して、進める
+    // TODO: Overflowの修正(mirror?)
+    let code_addr = if self.pc as usize >= machine.prg_bytes { self.pc as usize - machine.prg_bytes } else { self.pc as usize };
+    let code = machine.prg_rom[code_addr];
+
     let pc_tmp = self.pc;
     self.pc += 1;
 
@@ -825,7 +846,10 @@ impl Cpu {
       }
 
       Opcode::BNE => {
+        // if addr_mode == Addressing::Relative { println!("{}", self.pc); }
         let addr = self.fetch_operand(addr_mode, machine);
+        // if addr_mode == Addressing::Relative { println!("  {}", self.pc); }
+
         if self.read_z_flag() == 0 {
           self.pc = addr;
         }
