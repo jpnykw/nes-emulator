@@ -639,7 +639,7 @@ impl Cpu {
 
       Addressing::AbsoluteY => self.fetch_16bit(machine) + self.y as u16,
 
-      Addressing::Relative => (self.fetch_8bit(machine) as i32 + self.pc as i32) as u16,
+      Addressing::Relative => ((self.fetch_8bit(machine) as i8) as i32 + self.pc as i32) as u16,
 
       Addressing::Indirect => {
         let addr_low = self.fetch_8bit(machine) as u16;
@@ -851,6 +851,7 @@ impl Cpu {
         // if addr_mode == Addressing::Relative { println!("  {}", self.pc); }
 
         if self.read_z_flag() == 0 {
+          // println!("addr diff {}", addr - self.pc);
           self.pc = addr;
         }
       }
