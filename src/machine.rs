@@ -14,6 +14,7 @@ pub struct Machine {
 
   // for PPU
   pub nametable: [[u8; NAME_TABLE_SIZE]; 4],
+  pub ppu_register: [u8; 8],
 
   pub prg_bytes: usize,
   pub chr_bytes: usize
@@ -25,7 +26,10 @@ impl Machine {
       wram: [0; WRAM_SIZE],
       prg_rom: [0; PRG_ROM_SIZE],
       chr_rom: [0; CHR_ROM_SIZE],
+
       nametable: [[0; NAME_TABLE_SIZE]; 4],
+      ppu_register: [0; 8],
+
       prg_bytes: 0,
       chr_bytes: 0
     }
@@ -40,7 +44,21 @@ impl Machine {
     if addr < 0x2000 {
       self.wram[addr] = val;
     } else {
-      println!("ppu reg -> {}", (addr - 0x2000) % 8);
+      // println!("ppu reg -> {}", (addr - 0x2000) % 8);
+      println!("ppu addr ${:<04x}", addr - 0x2000);
+
+      // メモリマップ上$2000~に配置
+      let ppu_addr = addr - 0x2000;
+      match ppu_addr {
+        7 => {
+          self.ppu_register[7] = val
+          // Hoge
+        },
+
+        _ => {
+          self.ppu_register[ppu_addr] = val
+        }
+      }
     }
   }
 
