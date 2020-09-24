@@ -1,4 +1,5 @@
 const WRAM_SIZE: usize = 0x800; // 2KiB
+const VRAM_SIZE: usize = 0x800; // 2KiB
 const PRG_ROM_SIZE: usize = 0x8000;
 const CHR_ROM_SIZE: usize = 0x2000;
 
@@ -8,6 +9,7 @@ const NAME_TABLE_SIZE: usize = 0x400;
 #[derive(Copy, Clone)]
 pub struct Machine {
   pub wram: [u8; WRAM_SIZE],
+  pub vram: [u8; VRAM_SIZE],
 
   pub prg_rom: [u8; PRG_ROM_SIZE],
   pub chr_rom: [u8; CHR_ROM_SIZE],
@@ -47,12 +49,19 @@ impl Machine {
       // println!("ppu reg -> {}", (addr - 0x2000) % 8);
       println!("ppu addr ${:<04x}", addr - 0x2000);
 
-      // メモリマップ上$2000~に配置
-      let ppu_addr = addr - 0x2000;
-      match ppu_addr {
-        7 => {
+      // VRAMを操作するための I/O ポート
+      match addr {
+        0x2002 => {
+          // TODO: VBlank か否かのビットを立てる
+        },
+
+        0x2006 => {
+          // TODO: VRAM のアドレスを書き込む
+        },
+
+        0x2007 => {
           self.ppu_register[7] = val
-          // Hoge
+          // 書き込むことでアクセスを発生させる
         },
 
         _ => {
