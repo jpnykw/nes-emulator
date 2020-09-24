@@ -19,7 +19,10 @@ pub struct Machine {
   pub ppu_register: [u8; 8],
 
   pub prg_bytes: usize,
-  pub chr_bytes: usize
+  pub chr_bytes: usize,
+
+  tow_time: bool, // $2006 の2回書き込みの記録
+  upper_bits: u8, // $2006 1回目書き込み保持用
 }
 
 impl Machine {
@@ -34,7 +37,10 @@ impl Machine {
       ppu_register: [0; 8],
 
       prg_bytes: 0,
-      chr_bytes: 0
+      chr_bytes: 0,
+
+      tow_time: false,
+      upper_bits: 0,
     }
   }
 
@@ -58,12 +64,21 @@ impl Machine {
 
         0x2006 => {
           // TODO: VRAM のアドレスを書き込む
-          println!("VRAM addr {}", addr);
+          // 2回書き込む（1回目上位8bit, 2回目下位8bit)
+          // self.vram[addr - 0x2000] = val;
+          if self.tow_time {
+            // 2回目
+          } else {
+            // 1回目
+            self.upper_bits = val;
+          }
+
+          self.tow_time = !self.tow_time;
         },
 
         0x2007 => {
-          self.ppu_register[7] = val
           // 書き込むことでアクセスを発生させる
+          self.ppu_register[7] = val
         },
 
         _ => {
