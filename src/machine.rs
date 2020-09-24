@@ -26,6 +26,7 @@ impl Machine {
   pub fn new() -> Self {
     Self {
       wram: [0; WRAM_SIZE],
+      vram: [0; VRAM_SIZE],
       prg_rom: [0; PRG_ROM_SIZE],
       chr_rom: [0; CHR_ROM_SIZE],
 
@@ -57,6 +58,7 @@ impl Machine {
 
         0x2006 => {
           // TODO: VRAM のアドレスを書き込む
+          println!("VRAM addr {}", addr);
         },
 
         0x2007 => {
@@ -65,7 +67,7 @@ impl Machine {
         },
 
         _ => {
-          self.ppu_register[ppu_addr] = val
+          self.ppu_register[addr - 0x2000] = val
         }
       }
     }
